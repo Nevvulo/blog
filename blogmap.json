@@ -1,0 +1,27 @@
+[
+	{
+		"slug": "avoid-indentation-hell-with-early-returns",
+		"title": "Avoid indentation hell with early returns",
+		"description": "There's a better way to structure your conditional logic",
+		"image": "https://i.imgur.com/BtjZedW.jpg",
+		"createdAt": 1629207399000,
+		"location": "posts/avoid-indentation-hell-with-early-returns.mdx",
+		"labels": [
+			"programming",
+			"typescript",
+			"code-quality"
+		]
+	},
+	{
+		"slug": "numbers-in-javascript",
+		"title": "Numbers in JavaScript; harder than you think",
+		"description": "Simple, innocuous methods which will trip you up when working with numbers in JavaScript",
+		"image": "https://i.imgur.com/nWbP3i9.jpeg",
+		"createdAt": 1627826463000,
+		"labels": [
+			"programming",
+			"javascript"
+		],
+		"location": "posts/numbers-in-javascript.mdx"
+	}
+]

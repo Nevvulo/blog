@@ -1,0 +1,129 @@
+# Avoid indentation hell with early returns (guard clauses)
+
+Fundamentally, programming in any language consists of executing code, and the code that gets executed changes depending on what state of the program the user is in.
+
+For example, if we're making a game and the user has just won, we might want to make the background change to a green color. On the contrary, if the user loses, we'll change the background to a red color. Our program is simple enough in its current state, and we can visualize how it might look:
+
+```js
+function game() {
+  // ... game logic
+  const winner = user.winner;
+  if (winner) {
+    background = "green";
+  } else {
+    background = "red";
+  }
+}
+```
+
+That's simple enough to read.
+
+What if we wanted to make it so when the user _wins_ AND has a _score over 900_, they see a **gold** background? And just to spice things up, if a user has _won_ but has a score of _less than 300_, they'll see a **purple** background.
+
+```js
+function game() {
+  // ... game logic
+  const winner = user.winner;
+  const score = user.score;
+  if (winner) {
+    if (score > 900) {
+      background = "gold";
+    } else if (score < 300) {
+      background = "purple";
+    } else {
+      background = "green";
+    }
+  } else {
+    background = "red";
+  }
+}
+```
+
+It's not too difficult to represent all of these conditions in code, but you might be able to spot the problem with this code: if your boss wanted you to add more special cases like, for example, showing a **rainbow** background when someone has won with a score over 1500, or showing a black background if the player died. All of these "branches" quickly grow out of control and it can start getting hard to follow what's happening, as the condition for showing the red background if the user hasn't won is in an else block which is pretty far down. For some, it takes effort to try and read this code to figure out what it does, and you might find yourself jumping up and down the code to fully understand it.
+
+Let's try and take a different approach. Let's flip this on its head. Literally: let's flip the first if statement to check if the user is **not** a winner first.
+
+```js
+function game() {
+  background = getBackgroundColor(user);
+}
+
+function getBackgroundColor(user) {
+  const winner = user.winner;
+  const score = user.score;
+  if (!winner) return "red";
+  if (score > 900) return "gold";
+  if (score < 300) return "purple";
+  return "green";
+}
+```
+
+This is the same code as we saw above, including our special conditions to show a purple background only if the user has won the game **and** has a score of less than 300, and showing a gold background if the user is a winner but only if they have a score of over 900.
+
+By returning as early as possible, it becomes a lot simpler to read this code because we know everything below the `if (!winner) ...` line won't be executed unless the user **is** a winner. If the user is **not** a winner, we return early setting background to red.
+
+This has a few advantages over our code from earlier which used `else` heavily:
+
+- removes unnecessary code
+- reduces logical complexity
+- improves readability
+
+Compare this block of code, which includes an if-else pattern to handle logic:
+
+```js
+function game() {
+  // ... game logic
+  const winner = user.winner;
+  const score = user.score;
+  if (winner) {
+    // 1. if "winner" is true...
+    if (score > 900) {
+      // 2. if "winner" is true and score is > 900
+    } else if (score < 300) {
+      // 3. else if "winner" is true and score is < 300
+    } else {
+      // 4. if "winner" is true and score is > 300 and < 900
+    }
+  } else {
+    // 5. if "winner" is false...
+  }
+}
+```
+
+(the numbers in the comments represent the way I personally read this code, from top to bottom)
+
+... with this block of code which uses the early return pattern which is arguably a lot simpler and less lines of code:
+
+```js
+function game() {
+  // ... game logic
+  const winner = user.winner;
+  const score = user.score;
+  if (!winner) return; // if "winner" is false
+  // below will only execute if "winner" is true
+  if (score > 900) return; // if "score" is > 900
+  // below will only execute if "score" is < 900
+  if (score < 300) return; // if "score" is < 300
+  // below will only execute if "score" is > 300
+  // this final statement will only be executed if:
+  // * "winner" is true
+  // * "score" is < 900
+  // * "score" is > 300
+  return;
+}
+```
+
+That being said, it's worth mentioning there's a time and place to use early return pattern, just like there's always time to use `if/else`. Both work just fine, but at the end of the day if you're not the only person who needs to read your code, it helps to try and make it as understandable as possible. There are certain cases where returning early is better, but there's also times where returning early too often can cause more confusion. [This post on StackOverflow](https://stackoverflow.com/a/355863) by [Mark Kegel](https://github.com/littlenag) sums it up fairly well I think: it comes down to common sense and what you're trying to achieve with the function. Too much of anything is never good.
+
+<!--[PROPERTIES]
+- slug: 'avoid-indentation-hell-with-early-returns'
+  title: 'Avoid indentation hell with early returns'
+  description: "There's a better way to structure your conditional logic"
+  image: "https://i.imgur.com/BtjZedW.jpg"
+  createdAt: 1629207399000
+  location: 'posts/avoid-indentation-hell-with-early-returns.mdx'
+  labels:
+    - programming
+    - typescript
+    - code-quality
+-->

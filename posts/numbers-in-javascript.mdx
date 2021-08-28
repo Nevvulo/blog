@@ -1,0 +1,155 @@
+# Numbers in JavaScript; tougher than you think
+
+JavaScript (JS) isn't exactly [well-known](https://github.com/denysdovhan/wtfjs) for being robust or terse - it's quite the opposite, it stands behind the notion of "I'll take whatever you throw at me". JS is a [loosely typed language](https://en.wikipedia.org/wiki/Strong_and_weak_typing), developers won't have to explicitly define the type of data they're using. This can make things a lot simpler, but also a lot more complicated at the same time as we don't know what the data we are receiving will be or what we'll be able to do with it.
+
+Let's take a simple `addNumbers` function:
+
+```js
+function addNumbers(first, second) {
+  return first + second;
+}
+```
+
+```js
+addNumbers(1, 2); // logs 3
+typeof addNumbers(1, 2); // logs "number"
+```
+
+Great! We can feed two arguments in as numbers and get the sum as a number for the result. That means we can do number specific operations like `.toFixed`. But if we pass in a string as the first argument...
+
+```js
+addNumbers("1", 2); // logs "12"
+typeof addNumbers("1", 2); // logs "string"
+```
+
+Now our add function, intended for adding _numbers_ is returning text! Even worse, if we were expecting a number to be returned and we tried using a number-specific method like `.toFixed`, our app would throw an error:
+
+`addNumbers(...).toFixed is not a function`
+
+The situation above is unlikely to happen but not impossible (developer mistake). What _is_ more likely is your app accepting user input, and we need to add validation in our `addNumbers` function so that our app isn't just trying to add _any_ two things together. But how can we transform the two arguments in `addNumbers` into numbers and then confirm they are valid?
+
+# Parsing strings as numbers
+
+## `parseInt`
+
+`parseInt` (also available under `Number.parseInt` with same functionality) accepts two parameters, the first being the value to attempt to coerce into a number and the second is the radix or base.
+
+```js
+parseInt("100", 10); // 100
+```
+
+It's good to explicitly set the radix as `10` (since we count in base 10) as if the input string begins with "0x", this represents an octal and the default radix will change to 16 (hexadecimal), producing different results.
+
+An oddity to note with `parseInt` is that it will parse the string character by character until it finds an invalid character for the specified radix. To show this better, see below how the same input can result in two different outputs:
+
+```js
+parseInt("0xf", 10); // 0, stops when reaching "x"
+parseInt("99blake", 10); // 99, stops when reaching "b"
+parseInt("0xf", 16); // 15, 0xf is 15 in hexadecimal (base 16)
+```
+
+# Validating if a value is a number
+
+## `isNaN()`
+
+`isNaN` is a function available in the global scope and it allows us to know if a given input is "not a number" (NaN). We can inverse this to check if an input _is_ a number.
+
+```js
+!isNaN(1); // === true, 1 is a number!
+```
+
+Great, we should expect to see that entering a string would return `false` because a string is _obviously_ not a number.
+
+```js
+!isNaN(""); // === true, what??
+```
+
+This function only validates that the value, when coerced to a number using the `Number` constructor does not strictly equal itself. A quick reminder on a weird quirk: `NaN` is the only value in JS that does not strictly equal itself:
+
+```js
+NaN === NaN; // false
+```
+
+Internally, `isNaN` works similarly to this pseudocode:
+
+```js
+function parseInt(value) {
+  const n = Number(value);
+  return n !== n;
+}
+```
+
+So when we convert an empty string to a number using the `Number` constructor, what do we get?
+
+```js
+Number(""); // 0
+0 === 0; // true
+// therefore..
+isNaN(""); // false
+```
+
+If you actually only want to test that a value is/isn't strictly `NaN`, prefer `Number.isNaN()` instead, which is more robust and also ensures that the type of the value is `number` using `typeof`
+
+## `typeof x === "number"`
+
+The `typeof` operator returns the type of the data after it as a string:
+
+```js
+let a = 1;
+typeof a; // "number"
+```
+
+This is more accurate than `isNaN` as it will not accept strings since `typeof (any string)` evaluates to `"string"`
+
+## `Number.isFinite` and `Number.isInteger`
+
+`Number.isFinite` only returns true if the value given is of type "number" and the value is within positive infinity and negative infinity (basically any valid number).
+
+If you want to ensure that your data is strictly an integer (not a floating point number like `2.31412`), prefer `Number.isInteger` instead which will return `false` when provided with a floating point number that cannot be represented as an integer. Note that floating point numbers that are large enough will be rounded and then can be represented as an integer, thus passing the check:
+
+```js
+Number.isInteger(5.0); // true
+Number.isInteger(5.000000000000001); // false
+Number.isInteger(5.0000000000000001); // true
+```
+
+# Updating our function
+
+```js
+function addNumbers(first, second) {
+  // parseFloat allows us to convert a string into
+  // a number with floating point precision
+  first = parseFloat(first);
+  second = parseFloat(second);
+  // are the arguments valid numbers after being converted from a string?
+  if (!Number.isFinite(first))
+    throw new Error("first argument must be an integer");
+  if (!Number.isFinite(second))
+    throw new Error("second argument must be an integer");
+  return first + second;
+}
+```
+
+```js
+addNumbers("1", 2); // 3! yay
+// also works with other wonky combinations
+addNumbers("1", "1"); // 2
+addNumbers("1", "1"); // 2
+addNumbers(1, "1"); // 2
+// errors when passing an invalid number
+addNumbers("blablah blah", 2);
+addNumbers("-", 2); // Error: first argument must be an integer
+addNumbers(1); // Error: second argument must be an integer
+```
+
+<!--[PROPERTIES]
+- slug: 'numbers-in-javascript'
+  title: 'Numbers in JavaScript'
+  description: "Simple, innocuous methods which will trip you up when working with numbers in JavaScript"
+  image: "https://i.imgur.com/nWbP3i9.jpeg"
+  createdAt: 1627826463001
+  location: 'posts/numbers-in-javascript.mdx'
+  labels:
+    - programming
+    - javascript
+-->

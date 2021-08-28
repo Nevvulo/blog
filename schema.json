@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "slug": {
+        "type": "string"
+      },
+      "title": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "image": {
+        "type": "string"
+      },
+      "createdAt": {
+        "type": "integer"
+      },
+      "labels": {
+        "type": "array"
+      },
+      "location": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "slug",
+      "title",
+      "description",
+      "image",
+      "createdAt",
+      "location"
+    ]
+  }
+}

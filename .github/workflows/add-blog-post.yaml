@@ -1,0 +1,94 @@
+name: Add Blog Post
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "posts/**"
+jobs:
+  create-post:
+    name: Append New Post to blogmap.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get specific changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v1.0.0
+        with:
+          files: posts
+
+      # Gets the line number where "<!--[PROPERTIES]" appears, reads $file from
+      # that line number and removes the first and last line from selection
+      # (because we don't want the opening and closing HTML tag in our YAML)
+
+      # If an error occurs retrieving the line number for the [PROPERTIES] tag
+      # (ie. it doesn't exist) - the step fails. Otherwise, we write the
+      # selection to post-properties.yml
+      - name: Read Post Properties and Write to File
+        run: |
+          for file in "${{ steps.changed-files.outputs.all_modified_files }}"; do
+            echo "$file"
+            export PROPERTIES=$(tail -n `grep -e "<\!--\[PROPERTIES\]" -n $file | awk -F ":" '{print "+"$1}'` $file | tail -n +2 | sed '$d' || exit 1)
+            [ "$PROPERTIES" ] || (echo "Error occurred while processing blog properties for $file: ensure that the properties exist at the bottom of the blog file and are in the correct format." && exit 1)
+            echo -e "$PROPERTIES\n" >> post-properties.yml
+            echo $(cat post-properties.yml)
+          done
+
+      # Converts the post-properties.yml file created from the previous step
+      # to JSON to be written into blogmap.json
+      - name: Convert Post Properties to JSON
+        uses: fabasoad/yaml-json-xml-converter-action@main
+        id: yaml2json
+        with:
+          path: "post-properties.yml"
+          from: "yaml"
+          to: "json"
+
+      # Export the slug for the posts we're adding to blogmap.json into
+      # a variable so we can remove posts that already exist with that slug
+      - name: Write JSON Properties to File
+        run: |
+          cat <<EOF > post-properties.json
+          ${{ steps.yaml2json.outputs.data }}
+          EOF
+
+      # Removes entries in blogmap that have the same slug as any incoming
+      # posts and adds properties for new post
+      - name: Add Post to Array in blogmap.json
+        uses: sergeysova/jq-action@v2
+        id: blogmap
+        with:
+          cmd: "jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += $post[] | sort_by(.createdAt) | reverse' blogmap.json -c"
+
+      - name: Write JSON Results to blogmap.json
+        run: '([ "$OUTPUT" ] && echo "$OUTPUT" > blogmap.json) || exit 1'
+        env:
+          OUTPUT: ${{ steps.blogmap.outputs.value }}
+
+      # Validates that blogmap.json was written with the correct contents
+      - name: Validate File Size
+        run: |
+          minimumsize=100
+          actualsize=$(wc -c <blogmap.json)
+          if [ $actualsize -ge $minimumsize ]; then
+              echo blogmap.jsons size is over $minimumsize bytes
+          else
+              echo blogmap.json size is under $minimumsize bytes
+              exit 1
+          fi
+
+      - name: Validate JSON
+        uses: docker://orrosenblatt/validate-json-action:latest
+        env:
+          INPUT_SCHEMA: ./schema.json
+          INPUT_JSONS: ./blogmap.json
+
+      - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
+        with:
+          add: "blogmap.json"
+          default_author: github_actions
+          message: "Update blogmap.json"
+          signoff: true
