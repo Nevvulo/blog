@@ -1,0 +1,111 @@
+# Why and how I built the blog
+
+## Why I built the blog
+
+Before we start with **how**, let's learn more about _why_. I think it's important to establish why you want to do a project, and what you and others should gain from it.
+I know a lot of people have made blogs, but I'm not worried about diluting the market 😅 Instead, this blog has one mission I want to personally achieve:
+
+> Educate people on programming concepts in an _understandable_, _concise_ format while being _accessible_
+
+To achieve the mission, there are key goals as indicators of progress and success:
+
+👉 needs to educate people on programming
+
+👉 needs to be understandable
+
+👉 needs to be concise
+
+👉 needs to be accessible
+
+Now that we've established exactly what is needed when developing the blog, we can think about the best way to tick off each of those goals when writing the posts and developing the blog page.
+
+My main keyword for the blog was "accessible"; the blog should be simple to use, both for me (when making edits) and for viewers. Hosting blog content on a place like GitHub is good for accessibility for many reasons:
+
+- I can **quickly** push out new blog posts and make iterative changes to existing ones, even through the GitHub website
+- It gives **other people** the opportunity to fix content, translate existing content or contribute new content
+- It gives people **another place to access the blog** just in case my website goes down
+
+So, **GitHub** it is then! Now the question becomes: how do we get blog content hosted on a repo on GitHub loaded into my blog when users visit?
+
+## How it's done
+
+### Fetching Posts from GitHub
+
+All of the blog posts are stored in a repo on GitHub.
+While the blog is loading, a hook called `useRepoFile` is rendered which sends a [HTTP GET request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET) to read the `blogmap.json` file on the [Nevvulo/blog](https://github.com/Nevvulo/blog) repo:
+
+```js
+const response = await fetch(
+  `https://raw.githubusercontent.com/Nevvulo/blog/main/${file}`
+);
+// contains an array of posts
+const posts = await response.json();
+```
+
+The response from this request contains JSON data, specifically an array containing all of the blog posts including their name, description, image, etc.
+
+```json
+[
+  {
+    "slug": "test-post",
+    "title": "Test post",
+    "description": "...",
+    "image": "..."
+  },
+  ...
+]
+```
+
+While we wait for the response to complete, we play a loading animation. Once it does complete, we render a `<Post />` component for each post returned from the hook and pass in the metadata as props.
+
+### Loading a Single Post
+
+Each post in the `blogmap.json` file mentioned above has a `location` property which includes the location of the post in the repo. In our case, the posts are stored under the `posts` folder. In the example above, the `location` property could be `posts/test-post.mdx`.
+
+When a user clicks on a blog post, we use the same `useRepoFile` hook to request a file on the repo under `posts/test-post.mdx`. Any markdown in the post is parsed client-side and the final content is rendered on the page.
+
+### Publishing Posts
+
+To publish a post, I simply add a file ending in `.mdx` on the [Nevvulo/blog](https://github.com/Nevvulo/blog) repo. However, it won't appear on the homepage for my blog since it looks at `blogmap.json` and we haven't updated that file with the properties of the new post.
+
+In order to programatically update the `blogmap.json` file with the properties for the post, all posts include properties about itself (image, description, title, etc) at the bottom of the post which looks like this:
+
+```
+<!-- [PROPERTIES]
+- slug: 'numbers-in-javascript'
+  title: 'Numbers in JavaScript'
+  description: "Simple, innocuous methods which will trip you up when working with numbers in JavaScript"
+  image: "https://i.imgur.com/nWbP3i9.jpeg"
+  createdAt: 1627826463001
+  location: 'posts/numbers-in-javascript.mdx'
+  labels:
+    - programming
+    - javascript
+-->
+```
+
+I set up a GitHub action to automatically update the `blogmap.json` file when adding/updating a post in the `posts` folder. It does this by searching the content of the post using a command line tool called `grep` for a `[PROPERTIES]` tag wrapped in a HTML comment (this is so users don't see the properties when reading the post normally).
+
+The properties are formatted in a language called [YAML](https://en.wikipedia.org/wiki/YAML) which the action parses as JSON, then appended to the array of posts in the `blogmap.json` file. You can check out the source code for the action [here](https://github.com/Nevvulo/blog/blob/main/.github/workflows/add-blog-post.yaml) - it's a bit of a mess but it gets the job done.
+
+---
+
+That's pretty much it!
+
+One message I want to make clear is I think it's important to develop solutions that make sense for your project and align with your goals.
+
+I had a few goals in mind for the blog, but I wanted it to be as simple as possible: simple to read, and simple for me and others to make changes. I didn't want to have to deal with maintaining a database, or even setting up something like Firebase. Managing blog content would be a nightmare and you'd have to have a separate admin panel.
+
+<!--[PROPERTIES]
+- slug: 'why-and-how-i-built-the-blog'
+  title: 'Why and how I built the blog'
+  description: "What I want to achieve with the blog, and how it works behind the scenes"
+  image: "https://images.unsplash.com/photo-1630343710506-89f8b9f21d31?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+  createdAt: 1630419299039
+  location: 'posts/why-and-how-i-built-the-blog.mdx'
+  labels:
+    - programming
+    - troubleshooting
+    - typescript
+    - errors
+-->
