@@ -1,0 +1,146 @@
+# How to read & troubleshoot TypeScript errors
+
+TypeScript compiler errors can be big and scary, and a good skill to have in your back pocket when errors do happen is being able to interpret the key information in the error to help you understand the problem and iterate over solutions. Let's take a look at two errors that might be hard to understand and catch you off guard.
+
+## No overload matches this call
+
+```jsx
+No overload matches this call.
+  Overload 1 of 2, '(options: B): Promise<void>', gave the following error.
+    Argument of type 'A | B' is not assignable to parameter of type 'B'.
+      Type 'A' is not assignable to type 'B'.
+        Type 'A' is not assignable to type '{ async: true; }'.
+          Types of property 'async' are incompatible.
+            Type 'false | undefined' is not assignable to type 'true'.
+              Type 'undefined' is not assignable to type 'true'.
+  Overload 2 of 2, '(options: A): void', gave the following error.
+    Argument of type 'A | B' is not assignable to parameter of type 'A'.
+      Type 'B' is not assignable to type 'A'.
+        Types of property 'async' are incompatible.
+          Type 'true' is not assignable to type 'false | undefined'.
+```
+
+Whew boy, that's a big one. There's a lot of information here, so let's unpack this. First step when reading any error is filtering out unneeded information, and looking at keywords to extract from the message: "No overload matches this call". Under the error message, there's two overloads that are reporting errors:
+
+```jsx
+Overload x of y, '(arguments): return type', gave the following error.
+```
+
+With each line of indentation, the error goes more and more into detail about what caused the error for each overload.
+
+What exactly is an overload, and why does it matter that "no overloads match this call"?
+
+An overload is essentially an alternative set of arguments and return type that a function can have depending on what is passed in. Let's take a simple `add` function:
+
+```jsx
+function add(a: number, b: number): number {
+  return a + b;
+}
+```
+
+Let's say we wanted to add an "assertion mode" to this `add` function, which will return `true` or `false` depending on if a third number we pass in (`c`) equals the result of `a + b`
+
+```jsx
+function add(a: number, b: number): number;
+function add(a: number, b: number, c: number): boolean;
+function add(a: number, b: number, c?: number) {
+    if (c) return a + b === c
+    return a + b
+}
+```
+
+![add function now has two overloads: screenshot shows top function signature with +1 overload](https://imgur.com/0P6OVqB.png)
+
+The `add` function now has two overloads. It can be confusing, but the first two lines are [function signatures](<[https://developer.mozilla.org/en-US/docs/Glossary/Signature/Function](https://developer.mozilla.org/en-US/docs/Glossary/Signature/Function)>) and the last is the actual implementation for the function. The top definition has priority, and the line under that is the overload: `a`, `b` and `c` must all be numbers and `add` must return a boolean.
+
+The compiler will _match_ a specific overload, provided the _call_ to the function is provided with arguments where the types match at least one of the overloads above.
+
+If `add` is called with two arguments, the first overload is matched:
+
+![add function called with two arguments, first overload matched](https://imgur.com/0cFY8q7.png)
+
+If `add` is called with three arguments, the second overload is matched:
+
+![add function called with three arguments, second overload matched](https://imgur.com/Snq6Zik.png)
+
+In Visual Studio Code, you can see the overloads a function has on the left of the tooltip. Overloads aren't widely used in TypeScript anymore, many preferring to use [unions](<[https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html)>).
+
+Since we have an error complaining about "no overloads matching this call", we know it's related to arguments being passed into a function with multiple overloads, potentially with the wrong type. If you're seeing this error, it's best to double check that you're passing the right arguments with the right types into the function for the overload you want to target.
+
+## Types of property `type` are incompatible
+
+```jsx
+Argument of type '{ type: string };' is not assignable to parameter of type 'Schema'
+
+Type '{ type: string; }' is not assignable to type 'Schema'
+
+Types of property 'type' are incompatible.
+
+Type 'string' is not assignable to type '"string" | "number"'
+```
+
+Usually when you see this error, you'll also see "type `x` is not assignable to type `y`". What does it mean for a type to be "not assignable" to another type?
+
+TypeScript's own documentation [explains what "assignable to"](<[https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html#assignable-to](https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html#assignable-to)>) means, and says a type is considered assignable to another type if "one is an acceptable substitute for another" - basically, both types need to have the same "shape" or structure. You can't assign a `number` to a `string`, and you can't assign `{ a: number }` to `{ a: string }`. In both examples, you couldn't substitute the first type for the second or vice versa.
+
+You might encounter this error if an object you're supplying to an argument for a function does not make a suitable substitute for the type the function is requesting for that argument (like the two objects in the example before). Double check that every property in the object you're supplying matches the type definition for the function you're using.
+
+### String literals vs `string` type
+
+One thing to be wary of if you get this error is the fact that the type `string` is not assignable to one particular string literal, such as `"test"`. In this cases, you might find yourself with an error like, `Type 'string' is not assignable to type '"test"'`.
+
+```jsx
+const getType = () => "string";
+const type = getType();
+
+type TestType = { type: "string" | "number" };
+// Type 'string' is not assignable to type '"string" | "number"'
+const obj: TestType = { type }; // ❌ type: string
+```
+
+A `"string literal"` is a different type to `string` (note the quote marks!) and it makes sense that the literal string `"test"` is **not** a substitute for **all** strings (`string`). However, any string literal like `"test"` is assignable to `string`.
+
+A quick fix for this problem (for TypeScript 3.4+) is to add `as const` to the end of your string so that the content of the string is the type.
+
+```ts
+const getType = () => "string" as const;
+const type = getType();
+
+type TestType = { type: "string" | "number" };
+const obj: TestType = { type }; // ✅ type: 'string'
+```
+
+Something also worth mentioning is the difference between defining strings using `var` or `let` compared to `const`. When defining a string using `var` or `let`, the compiler will infer the type as `string` automatically. When defining a string using `const`, [the type will be the literal contents of the string](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types).
+
+```ts
+let changingString = "Hello World";
+// type is `string`: since variables defined with
+// `let` are mutable, this *could* represent other
+// values
+
+const constantString = "Hello World";
+// type is `"Hello World"`: this is a constant
+// variable and can only represent one value
+
+// using a method to change the string
+// like `.reverse()` will simply change
+// the type to a `string`
+```
+
+## Conclusion
+
+The TypeScript documentation has a good [guide to understanding errors better](<[https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html](https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html)>), and there's a lot more you can do if the error you're facing is really stubborn. Try to strip unnecessary parts of code to get to the heart of the problem, or if all else fails, look into creating a [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_working_example) (there's a good guide by [StackOverflow](https://stackoverflow.com/help/minimal-reproducible-example)) to see if you can reproduce the problem from scratch, and divide and conquer to find out if there's something wrong with your code, or potentially a dependency you use.
+
+<!--[PROPERTIES]
+- slug: 'how-to-read-and-troubleshoot-typescript-errors'
+  title: 'How to read & troubleshoot TypeScript errors'
+  description: "Understand some common errors and what they mean instead of pulling your hair out"
+  image: "https://imgur.com/TZbI4RK.png"
+  createdAt: 1631624754888
+  location: 'posts/how-to-read-and-troubleshoot-typescript-errors.mdx'
+  labels:
+    - programming
+    - typescript
+    - troubleshooting
+    - errors
+-->
