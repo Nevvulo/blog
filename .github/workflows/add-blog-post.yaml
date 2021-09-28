@@ -152,10 +152,15 @@ jobs:
     name: Append New Post to blogmap.json
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - run: |
           cat <<EOF > post-properties.json
           ${{ needs.get-properties.outputs.json }}
           EOF
+
       - run: |
           cat <<EOF > temp.json
             ${{ needs.create-discussion.outputs.discussion-id }}
