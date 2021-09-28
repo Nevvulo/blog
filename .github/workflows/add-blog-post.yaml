@@ -89,8 +89,8 @@ jobs:
         run: |
           export JSON="${{ needs.get-properties.outputs.json }}"
 
-          export SLUG=`echo $(echo $(cat post-properties.json) | jq '.[].slug')` 
-          export DID=`echo $(echo $(cat post-properties.json) | jq '.[].discussionId')`
+          export SLUG=`echo $(echo "$JSON" | jq '.[].slug')` 
+          export DID=`echo $(echo "$JSON" | jq '.[].discussionId')`
           if [[ "${{ steps.query_existing_discussion.outputs.data }}" == *"$SLUG"* ]]; then
             export EXISTS=true
           else
