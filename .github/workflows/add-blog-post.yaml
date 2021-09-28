@@ -9,7 +9,7 @@ jobs:
   get-properties:
     name: Get Metadata from Post
     outputs:
-      json: ${{ steps.exists.outputs.exists }}
+      json: ${{ steps.metadata.outputs.json }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -88,9 +88,10 @@ jobs:
       - id: metadata
         run: |
           export JSON="${{ needs.get-properties.outputs.json }}"
+          echo $JSON
 
-          export SLUG=`echo $(echo "$JSON" | jq '.[].slug')` 
-          export DID=`echo $(echo "$JSON" | jq '.[].discussionId')`
+          export SLUG=`echo $(echo "$JSON" | jq '.[][].slug')` 
+          export DID=`echo $(echo "$JSON" | jq '.[][].discussionId')`
           if [[ "${{ steps.query_existing_discussion.outputs.data }}" == *"$SLUG"* ]]; then
             export EXISTS=true
           else
