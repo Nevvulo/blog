@@ -153,8 +153,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          if [[ -z "${{ needs.create-discussion.outputs.discussion-id }}" ]]; then
-            export DID=$(echo "${{ needs.create-discussion.outputs.discussion-id }}" | jq .createDiscussion.discussion.id)
+          cat <<EOF > temp.json
+            ${{ needs.create-discussion.outputs.discussion_id }}
+          EOF
+          if [[ -z $(cat temp.json) ]]; then
+            export DID=$(echo "$(cat temp.json)" | jq .createDiscussion.discussion.id)
           else
             if [ "${{ needs.check-if-discussion-exists.outputs.did }}" != "null" ]; then
               export DID="${{ needs.check-if-discussion-exists.outputs.did }}" 
