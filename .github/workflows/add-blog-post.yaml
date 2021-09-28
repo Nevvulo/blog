@@ -71,7 +71,7 @@ jobs:
         id: query_existing_discussion
         with:
           query: |
-            query discussion($categoryId:String!) {
+            query discussion($categoryId:ID!) {
               repository(owner: "Nevvulo", name: "blog") {
                 discussions(categoryId: $categoryId) {
                   nodes {
@@ -112,7 +112,7 @@ jobs:
         id: create_discussion
         with:
           query: |
-            mutation discussion($repoId:String!,$categoryId:String!) {
+            mutation discussion($repoId:ID!,$categoryId:ID!) {
               createDiscussion(input: {repositoryId: $repoId, categoryId: $categoryId, body: "test", title: ""}) {
                 discussion {
                   id
