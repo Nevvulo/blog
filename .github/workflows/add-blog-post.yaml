@@ -63,6 +63,7 @@ jobs:
     outputs:
       exists: ${{ steps.metadata.outputs.exists }}
       slug: ${{ steps.metadata.outputs.slug }}
+      title: ${{ steps.metadata.outputs.title }}
       did: ${{ steps.metadata.outputs.did }}
     runs-on: ubuntu-latest
     needs: get-properties
@@ -95,7 +96,8 @@ jobs:
           export JSON=$(cat json.temp)
           echo $JSON
 
-          export SLUG=`echo $(echo "$JSON" | jq '.[].slug')` 
+          export SLUG=`echo $(echo "$JSON" | jq '.[].slug')`
+          export TITLE=`echo $(echo "$JSON" | jq '.[].title')`
           export DID=`echo $(echo "$JSON" | jq '.[].discussionId')`
           if [[ "${{ steps.query_existing_discussion.outputs.data }}" == *"$SLUG"* ]]; then
             export EXISTS=true
@@ -103,9 +105,11 @@ jobs:
             export EXISTS=
           fi
           echo $SLUG
+          echo $TITLE
           echo $DID
           echo $EXISTS
           echo "::set-output name=slug::$SLUG"
+          echo "::set-output name=title::$TITLE"
           echo "::set-output name=did::$DID"
           echo "::set-output name=exists::$EXISTS"
 
@@ -125,8 +129,8 @@ jobs:
         id: create_discussion
         with:
           query: |
-            mutation discussion($repoid:ID!,$categoryid:ID!,$body:String!) {
-              createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: "post"}) {
+            mutation discussion($repoid:ID!,$categoryid:ID!,$body:String!,$title:String!) {
+              createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: $title}) {
                 discussion {
                   id
                 }
@@ -135,6 +139,7 @@ jobs:
           repoid: ${{ secrets.REPO_ID }}
           categoryid: ${{ secrets.CATEGORY_ID }}
           body: ${{ needs.check-if-discussion-exists.outputs.slug }}
+          title: ${{ needs.check-if-discussion-exists.outputs.title }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_ID: ${{ secrets.REPO_ID }}
@@ -149,16 +154,19 @@ jobs:
     steps:
       - run: |
           if [[ -z "${{ needs.create-discussion.outputs.discussion-id }}" ]]; then
-            export DID="${{ needs.create-discussion.outputs.discussion-id }}"
+            export DID=$(echo "${{ needs.create-discussion.outputs.discussion-id }}" | jq .createDiscussion.discussion.id)
           else
-            export DID="${{ needs.check-if-discussion-exists.outputs.did }}"
+            if [ "${{ needs.check-if-discussion-exists.outputs.did }}" != "null" ]; then
+              export DID="${{ needs.check-if-discussion-exists.outputs.did }}" 
+            else
+              exit 1
+            fi
           fi
-          if [[  export "echo "
 
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
       - run: |
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$SLUG"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
+          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
