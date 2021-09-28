@@ -111,7 +111,7 @@ jobs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
     steps:
       - run: |
-          if [[ -z "${{ needs.check-if-discussion-exists.outputs.exists }}" ]]; then
+          if [[ -n "${{ needs.check-if-discussion-exists.outputs.exists }}" ]]; then
             exit 0;
           fi
       - run: echo Discussion does not exist, creating
@@ -137,26 +137,22 @@ jobs:
       - run: "echo 'Created new discussion with ID: ${{ steps.create_discussion.outputs.data }}'"
 
   create-post:
-    needs: create-discussion
+    needs: [check-if-discussion-exists, create-discussion]
     name: Append New Post to blogmap.json
     runs-on: ubuntu-latest
     steps:
-      - run: "echo ${{ needs.create-discussion.outputs.discussion-id }}"
+      - run: |
+          if [[ -z "${{ needs.create-discussion.outputs.discussion-id }}" ]]; then
+            export DID="${{ needs.create-discussion.outputs.discussion-id }}"
+          else
+            export DID="${{ needs.check-if-discussion-exists.outputs.did }}"
+          fi
+          if [[  export "echo "
 
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
-      - name: Add Post to Array in blogmap.json
-        uses: sergeysova/jq-action@v2
-        id: blogmap
-        with:
-          cmd: 'jq --slurpfile post post-properties.json ''del(.[] | select(.slug == $post[][].slug)) | . += $post[] += { discussionId: "$DID" } | sort_by(.createdAt) | reverse'' blogmap.json -c'
-        env:
-          DID: ${{ needs.create-discussion.outputs.discussion-id }}
-
-      - name: Write JSON Results to blogmap.json
-        run: '([ "$OUTPUT" ] && echo "$OUTPUT" > blogmap.json) || exit 1'
-        env:
-          OUTPUT: ${{ steps.blogmap.outputs.value }}
+      - run: |
+          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$SLUG"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
@@ -170,12 +166,17 @@ jobs:
               exit 1
           fi
 
-      - name: Validate JSON
+      - name: Validate JSON Schema
         uses: docker://orrosenblatt/validate-json-action:latest
         env:
           INPUT_SCHEMA: ./schema.json
           INPUT_JSONS: ./blogmap.json
 
+  commit:
+    needs: create-post
+    name: Commit Changes
+    runs-on: ubuntu-latest
+    steps:
       - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
         with:
           add: "blogmap.json"
