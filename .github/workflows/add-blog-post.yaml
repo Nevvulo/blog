@@ -178,7 +178,7 @@ jobs:
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
       - run: |
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[].slug)) | . += [$post[] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
+          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
