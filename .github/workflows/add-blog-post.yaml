@@ -115,15 +115,12 @@ jobs:
 
   create-discussion:
     name: Create Discussion
+    if: ${{ needs.check-if-discussion-exists.outputs.exists != 'true' }}
     needs: [get-properties, check-if-discussion-exists]
     runs-on: ubuntu-latest
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
     steps:
-      - run: |
-          if [[ -z "${{ needs.check-if-discussion-exists.outputs.exists }}" ]]; then
-            exit 0;
-          fi
       - run: echo Discussion does not exist, creating
       - uses: octokit/graphql-action@v2.x
         id: create_discussion
@@ -198,11 +195,6 @@ jobs:
           INPUT_SCHEMA: ./schema.json
           INPUT_JSONS: ./blogmap.json
 
-  commit:
-    needs: create-post
-    name: Commit Changes
-    runs-on: ubuntu-latest
-    steps:
       - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
         with:
           add: "blogmap.json"
