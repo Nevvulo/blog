@@ -85,11 +85,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: 'echo "${{ toJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText }}"'
       - id: metadata
         run: |
-          echo "::set-output name=slug::${{ toJSON(needs.get-properties.outputs.json)[0].slug }}"
-          echo "::set-output name=did::${{ toJSON(needs.get-properties.outputs.json)[0].discussionId }}"
+          echo $SLUG
+          echo $DID
+          echo "::set-output name=slug::$SLUG"
+          echo "::set-output name=did::$DID"
+        env:
+          SLUG: ${{ toJSON(needs.get-properties.outputs.json)[0].slug }}
+          DID: ${{ toJSON(needs.get-properties.outputs.json)[0].discussionId }}
+
       - id: exists
         run: echo "::set-output name=exists::$OUTPUT"
         env:
@@ -106,6 +111,7 @@ jobs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
     steps:
       - run: if [ ${{ needs.check-if-discussion-exists.outputs.exists }} ]; exit 0
+      - run: echo ${{ needs.check-if-discussion-exists.outputs.slug }}
       - run: echo Discussion does not exist, creating
 
       - uses: octokit/graphql-action@v2.x
