@@ -56,7 +56,7 @@ jobs:
           EOF
 
       - id: metadata
-        run: echo "::set-output name=json::$(echo $(cat post-properties.json))"
+        run: echo "::set-output name=json::`cat post-properties.json`"
 
   check-if-discussion-exists:
     name: Check If Discussion Already Exists
@@ -87,10 +87,11 @@ jobs:
 
       - id: metadata
         run: |
-          export JSON=${{ needs.get-properties.outputs.json }}
-          export SLUG=`echo $(jq -r '.[]slug' <<< "$JSON")` 
-          export DID=`echo $(jq -r '.[]discussionId' <<< "$JSON")` 
-          if [ "${{ fromJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText }}" = "$SLUG" ]; then
+          export JSON="${{ needs.get-properties.outputs.json }}"
+
+          export SLUG=`echo $(echo $(cat post-properties.json) | jq '.[].slug')` 
+          export DID=`echo $(echo $(cat post-properties.json) | jq '.[].discussionId')`
+          if [[ "${{ steps.query_existing_discussion.outputs.data }}" == *"$SLUG"* ]]; then
             export EXISTS=true
           else
             export EXISTS=
@@ -119,7 +120,7 @@ jobs:
         with:
           query: |
             mutation discussion($repoid:ID!,$categoryid:ID!,$body:String!) {
-              createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: ""}) {
+              createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: "post"}) {
                 discussion {
                   id
                 }
