@@ -73,7 +73,7 @@ jobs:
           query: |
             query discussion($categoryid:ID!) {
               repository(owner: "Nevvulo", name: "blog") {
-                discussions(categoryId: $categoryid) {
+                discussions(categoryId: $categoryid, first: 100) {
                   nodes {
                     id
                     bodyText
