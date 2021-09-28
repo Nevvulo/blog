@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
-    if: always() && needs.check-if-discussion-exists.result === 'success'
+    if: always() && needs.check-if-discussion-exists.result == 'success'
     steps:
       - uses: octokit/graphql-action@v2.x
         id: create_discussion
