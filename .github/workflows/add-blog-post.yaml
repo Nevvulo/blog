@@ -61,7 +61,7 @@ jobs:
   check-if-discussion-exists:
     name: Check If Discussion Already Exists
     outputs:
-      exists: ${{ steps.metadata.outputs.json }}
+      exists: ${{ steps.metadata.outputs.exists }}
       slug: ${{ steps.metadata.outputs.slug }}
       did: ${{ steps.metadata.outputs.did }}
     runs-on: ubuntu-latest
@@ -87,21 +87,16 @@ jobs:
 
       - id: metadata
         run: |
+          export JSON=`cat post-properties.json`
+          export SLUG=`echo $(jq -r '.[]slug' <<< "$JSON")` 
+          export DID=`echo $(jq -r '.[]discussionId' <<< "$JSON")` 
+          export EXISTS=`${{ contains(fromJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText, $SLUG) }}` 
           echo $SLUG
           echo $DID
+          echo $EXISTS
           echo "::set-output name=slug::$SLUG"
           echo "::set-output name=did::$DID"
-        env:
-          SLUG: ${{ toJSON(needs.get-properties.outputs.json)[0].slug }}
-          DID: ${{ toJSON(needs.get-properties.outputs.json)[0].discussionId }}
-
-      - id: exists
-        run: echo "::set-output name=exists::$OUTPUT"
-        env:
-          OUTPUT: ${{ contains(
-            toJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText,
-            toJSON(needs.get-properties.outputs.json)[0].slug
-            ) }}
+          echo "::set-output name=exists::$EXISTS"
 
   create-discussion:
     name: Create Discussion
