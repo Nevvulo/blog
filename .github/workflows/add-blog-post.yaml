@@ -9,7 +9,7 @@ jobs:
   get-properties:
     name: Get Metadata from Post
     outputs:
-      json: ${{ steps.metadata.outputs.json }}
+      json: ${{ steps.exists.outputs.exists }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -59,7 +59,11 @@ jobs:
         run: echo "::set-output name=json::$(echo $(cat post-properties.json))"
 
   check-if-discussion-exists:
-    name: Query Discussions for Existing Post
+    name: Check If Discussion Already Exists
+    outputs:
+      exists: ${{ steps.metadata.outputs.json }}
+      slug: ${{ steps.metadata.outputs.slug }}
+      did: ${{ steps.metadata.outputs.did }}
     runs-on: ubuntu-latest
     needs: get-properties
     steps:
@@ -67,19 +71,27 @@ jobs:
         id: query_existing_discussion
         with:
           query: |
-            repository(owner: "Nevvulo", name: "blog") {
-              discussions(categoryId: "${{ secrets.CATEGORY_ID }}") {
-                nodes {
-                  bodyText
+            query discussion($categoryId:String!) {
+              repository(owner: "Nevvulo", name: "blog") {
+                discussions(categoryId: $categoryId) {
+                  nodes {
+                    id
+                    bodyText
+                  }
                 }
               }
             }
+          categoryId: ${{ secrets.CATEGORY_ID }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: 'echo "${{ toJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText }}"'
-      - run: 'echo "${{ toJSON(needs.get-properties.outputs.json)[0].slug }}"'
-      - run: '([ "$OUTPUT" ] || exit 1'
+      - id: metadata
+        run: |
+          echo "::set-output name=slug::${{ toJSON(needs.get-properties.outputs.json)[0].slug }}"
+          echo "::set-output name=did::${{ toJSON(needs.get-properties.outputs.json)[0].discussionId }}"
+      - id: exists
+        run: echo "::set-output name=exists::$OUTPUT"
         env:
           OUTPUT: ${{ contains(
             toJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText,
@@ -87,23 +99,28 @@ jobs:
             ) }}
 
   create-discussion:
+    name: Create Discussion
     needs: check-if-discussion-exists
     runs-on: ubuntu-latest
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
-    if: always() && needs.check-if-discussion-exists.result == 'success'
     steps:
+      - run: if [ ${{ needs.check-if-discussion-exists.outputs.exists }} ]; exit 0
+      - run: echo Discussion does not exist, creating
+
       - uses: octokit/graphql-action@v2.x
         id: create_discussion
         with:
           query: |
-            mutation {
-              createDiscussion(input: {repositoryId: "${{ secrets.REPO_ID }}", categoryId: "${{ secrets.CATEGORY_ID }}", body: "test", title: ""}) {
+            mutation discussion($repoId:String!,$categoryId:String!) {
+              createDiscussion(input: {repositoryId: $repoId, categoryId: $categoryId, body: "test", title: ""}) {
                 discussion {
                   id
                 }
               }
             }
+          repoId: ${{ secrets.REPO_ID }}
+          categoryId: ${{ secrets.CATEGORY_ID }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_ID: ${{ secrets.REPO_ID }}
