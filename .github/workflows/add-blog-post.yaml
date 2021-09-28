@@ -162,7 +162,8 @@ jobs:
           cat <<EOF > temp.json
             ${{ needs.create-discussion.outputs.discussion-id }}
           EOF
-          if [[ -n $(cat temp.json) ]]; then
+          echo $(cat temp.json)
+          if [[ -n "$(cat temp.json)" ]]; then
             export DID=$(echo "$(cat temp.json)" | jq .createDiscussion.discussion.id)
           else
             if [ "${{ needs.check-if-discussion-exists.outputs.did }}" != "null" ]; then
