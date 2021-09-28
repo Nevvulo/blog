@@ -148,15 +148,19 @@ jobs:
       - run: "echo 'Created new discussion with ID: ${{ steps.create_discussion.outputs.data }}'"
 
   create-post:
-    needs: [check-if-discussion-exists, create-discussion]
+    needs: [get-properties, check-if-discussion-exists, create-discussion]
     name: Append New Post to blogmap.json
     runs-on: ubuntu-latest
     steps:
       - run: |
+          cat <<EOF > post-properties.json
+          ${{ needs.get-properties.outputs.json }}
+          EOF
+      - run: |
           cat <<EOF > temp.json
             ${{ needs.create-discussion.outputs.discussion-id }}
           EOF
-          if [[ -z $(cat temp.json) ]]; then
+          if [[ -n $(cat temp.json) ]]; then
             export DID=$(echo "$(cat temp.json)" | jq .createDiscussion.discussion.id)
           else
             if [ "${{ needs.check-if-discussion-exists.outputs.did }}" != "null" ]; then
@@ -169,7 +173,7 @@ jobs:
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
       - run: |
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
+          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[].slug)) | . += [$post[] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
