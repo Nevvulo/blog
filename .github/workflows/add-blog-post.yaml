@@ -71,9 +71,9 @@ jobs:
         id: query_existing_discussion
         with:
           query: |
-            query discussion($categoryId:ID!) {
+            query discussion($categoryid:ID!) {
               repository(owner: "Nevvulo", name: "blog") {
-                discussions(categoryId: $categoryId) {
+                discussions(categoryId: $categoryid) {
                   nodes {
                     id
                     bodyText
@@ -81,7 +81,7 @@ jobs:
                 }
               }
             }
-          categoryId: ${{ secrets.CATEGORY_ID }}
+          categoryid: ${{ secrets.CATEGORY_ID }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -100,7 +100,7 @@ jobs:
 
   create-discussion:
     name: Create Discussion
-    needs: check-if-discussion-exists
+    needs: [get-properties, check-if-discussion-exists]
     runs-on: ubuntu-latest
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
@@ -112,15 +112,16 @@ jobs:
         id: create_discussion
         with:
           query: |
-            mutation discussion($repoId:ID!,$categoryId:ID!) {
-              createDiscussion(input: {repositoryId: $repoId, categoryId: $categoryId, body: "test", title: ""}) {
+            mutation discussion($repoid:ID!,$categoryid:ID!,$body:String!) {
+              createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: ""}) {
                 discussion {
                   id
                 }
               }
             }
-          repoId: ${{ secrets.REPO_ID }}
-          categoryId: ${{ secrets.CATEGORY_ID }}
+          repoid: ${{ secrets.REPO_ID }}
+          categoryid: ${{ secrets.CATEGORY_ID }}
+          body: ${{ needs.check-if-discussion-exists.outputs.slug }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_ID: ${{ secrets.REPO_ID }}
