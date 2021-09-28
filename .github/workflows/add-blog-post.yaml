@@ -85,9 +85,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - run: |
+          cat <<EOF > json.temp
+          ${{ needs.get-properties.outputs.json }}
+          EOF
+
       - id: metadata
         run: |
-          export JSON="${{ needs.get-properties.outputs.json }}"
+          export JSON=$(cat json.temp)
           echo $JSON
 
           export SLUG=`echo $(echo "$JSON" | jq '.[][].slug')` 
