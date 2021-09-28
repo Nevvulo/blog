@@ -109,7 +109,7 @@ jobs:
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
     steps:
-      - run: if [[ -z ${{ needs.check-if-discussion-exists.outputs.exists }} ]]; exit 0
+      - run: if [[ -z "${{ needs.check-if-discussion-exists.outputs.exists }}" ]]; exit 0
       - run: echo Discussion does not exist, creating
 
       - uses: octokit/graphql-action@v2.x
