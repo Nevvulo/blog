@@ -6,8 +6,10 @@ on:
     paths:
       - "posts/**"
 jobs:
-  create-post:
-    name: Append New Post to blogmap.json
+  get-properties:
+    name: Get Metadata from Post
+    outputs:
+      json: ${{ steps.metadata.outputs.json }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -33,7 +35,7 @@ jobs:
             echo "$file"
             export PROPERTIES=$(tail -n `grep -e "<\!--\[PROPERTIES\]" -n $file | awk -F ":" '{print "+"$1}'` $file | tail -n +2 | sed '$d' || exit 1)
             [ "$PROPERTIES" ] || (echo "Error occurred while processing blog properties for $file: ensure that the properties exist at the bottom of the blog file and are in the correct format." && exit 1)
-            echo -e "$PROPERTIES\n" >> post-properties.yml
+            echo -e "$PROPERTIES" >> post-properties.yml
             echo $(cat post-properties.yml)
           done
 
@@ -47,13 +49,74 @@ jobs:
           from: "yaml"
           to: "json"
 
-      # Export the slug for the posts we're adding to blogmap.json into
-      # a variable so we can remove posts that already exist with that slug
       - name: Write JSON Properties to File
         run: |
           cat <<EOF > post-properties.json
           ${{ steps.yaml2json.outputs.data }}
           EOF
+
+      - id: metadata
+        run: echo "::set-output name=json::$(echo $(cat post-properties.json))"
+
+  check-if-discussion-exists:
+    name: Query Discussions for Existing Post
+    runs-on: ubuntu-latest
+    needs: get-properties
+    steps:
+      - uses: octokit/graphql-action@v2.x
+        id: query_existing_discussion
+        with:
+          query: |
+            repository(owner: "Nevvulo", name: "blog") {
+              discussions(categoryId: "${{ secrets.CATEGORY_ID }}") {
+                nodes {
+                  bodyText
+                }
+              }
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: 'echo "${{ toJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText }}"'
+      - run: 'echo "${{ toJSON(needs.get-properties.outputs.json)[0].slug }}"'
+      - run: '([ "$OUTPUT" ] || exit 1'
+        env:
+          OUTPUT: ${{ contains(
+            toJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText,
+            toJSON(needs.get-properties.outputs.json)[0].slug
+            ) }}
+
+  create-discussion:
+    needs: check-if-discussion-exists
+    runs-on: ubuntu-latest
+    outputs:
+      discussion-id: ${{ steps.create_discussion.outputs.data }}
+    if: always() && needs.check-if-discussion-exists.result === 'success'
+    steps:
+      - uses: octokit/graphql-action@v2.x
+        id: create_discussion
+        with:
+          query: |
+            mutation {
+              createDiscussion(input: {repositoryId: "${{ secrets.REPO_ID }}", categoryId: "${{ secrets.CATEGORY_ID }}", body: "test", title: ""}) {
+                discussion {
+                  id
+                }
+              }
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_ID: ${{ secrets.REPO_ID }}
+          CATEGORY_ID: ${{ secrets.CATEGORY_ID }}
+
+      - run: "echo 'Created new discussion with ID: ${{ steps.create_discussion.outputs.data }}'"
+
+  create-post:
+    needs: create-discussion
+    name: Append New Post to blogmap.json
+    runs-on: ubuntu-latest
+    steps:
+      - run: "echo ${{ needs.create-discussion.outputs.discussion-id }}"
 
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
@@ -61,7 +124,9 @@ jobs:
         uses: sergeysova/jq-action@v2
         id: blogmap
         with:
-          cmd: "jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += $post[] | sort_by(.createdAt) | reverse' blogmap.json -c"
+          cmd: 'jq --slurpfile post post-properties.json ''del(.[] | select(.slug == $post[][].slug)) | . += $post[] += { discussionId: "$DID" } | sort_by(.createdAt) | reverse'' blogmap.json -c'
+        env:
+          DID: ${{ needs.create-discussion.outputs.discussion-id }}
 
       - name: Write JSON Results to blogmap.json
         run: '([ "$OUTPUT" ] && echo "$OUTPUT" > blogmap.json) || exit 1'
@@ -74,7 +139,7 @@ jobs:
           minimumsize=100
           actualsize=$(wc -c <blogmap.json)
           if [ $actualsize -ge $minimumsize ]; then
-              echo blogmap.jsons size is over $minimumsize bytes
+              echo blogmap.json size is over $minimumsize bytes
           else
               echo blogmap.json size is under $minimumsize bytes
               exit 1
