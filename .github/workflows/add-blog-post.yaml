@@ -87,7 +87,7 @@ jobs:
 
       - id: metadata
         run: |
-          export JSON=`cat post-properties.json`
+          export JSON=${{ needs.get-properties.outputs.json }}
           export SLUG=`echo $(jq -r '.[]slug' <<< "$JSON")` 
           export DID=`echo $(jq -r '.[]discussionId' <<< "$JSON")` 
           if [ "${{ fromJSON(steps.query_existing_discussion.outputs.data).repository.discussions.nodes[0].bodyText }}" = "$SLUG" ]; then
@@ -109,9 +109,11 @@ jobs:
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
     steps:
-      - run: if [[ -z "${{ needs.check-if-discussion-exists.outputs.exists }}" ]]; exit 0
+      - run: |
+          if [[ -z "${{ needs.check-if-discussion-exists.outputs.exists }}" ]]; then
+            exit 0;
+          fi
       - run: echo Discussion does not exist, creating
-
       - uses: octokit/graphql-action@v2.x
         id: create_discussion
         with:
