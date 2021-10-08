@@ -121,7 +121,6 @@ jobs:
     outputs:
       discussion-id: ${{ steps.create_discussion.outputs.data }}
     steps:
-      - run: echo Discussion does not exist, creating
       - uses: octokit/graphql-action@v2.x
         id: create_discussion
         with:
@@ -142,7 +141,13 @@ jobs:
           REPO_ID: ${{ secrets.REPO_ID }}
           CATEGORY_ID: ${{ secrets.CATEGORY_ID }}
 
-      - run: "echo 'Created new discussion with ID: ${{ steps.create_discussion.outputs.data }}'"
+      - run: |
+          cat <<EOF > temp.json
+            ${{ steps.create_discussion.outputs.data }}
+          EOF
+          DID=$(cat temp.json) | jq .createDiscussion.discussion.id
+          echo "::set-output name=did::$DID"
+          echo 'Created new discussion with ID: $DID'
 
   create-post:
     needs: [get-properties, check-if-discussion-exists, create-discussion]
@@ -153,29 +158,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: |
+      - name: Write Properties to post-properties.json
+        run: |
           cat <<EOF > post-properties.json
           ${{ needs.get-properties.outputs.json }}
           EOF
 
-      - run: |
-          cat <<EOF > temp.json
-            ${{ needs.create-discussion.outputs.discussion-id }}
-          EOF
-          echo $(cat temp.json)
-          if [[ -n "$(cat temp.json)" ]]; then
-            export DID=$(echo "$(cat temp.json)" | jq .createDiscussion.discussion.id)
-          else
-            if [ "${{ needs.check-if-discussion-exists.outputs.did }}" != "null" ]; then
-              export DID="${{ needs.check-if-discussion-exists.outputs.did }}" 
-            else
-              exit 1
-            fi
+      - name: Get Discussion ID (new or existing)
+        run: |
+          NEWDID="${{ needs.create-discussion.outputs.did }}"
+          EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
+          export DID=$([ -n "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
+          echo "$NEWDID\n$EXISTINGDID\n$DID"
+          if [[ -n "$DID" ] then
+            echo Discussion ID couldn't be retrieved
+            exit 1
           fi
 
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
-      - run: |
+      - name: Write Post Properties to blogmap.json
+        run: |
           echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
@@ -196,7 +199,8 @@ jobs:
           INPUT_SCHEMA: ./schema.json
           INPUT_JSONS: ./blogmap.json
 
-      - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
+      - name: Commit Changes
+        uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
         with:
           add: "blogmap.json"
           default_author: github_actions
