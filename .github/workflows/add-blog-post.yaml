@@ -105,15 +105,19 @@ jobs:
           export SLUG=`echo $(echo "$JSON" | jq -r '.[].slug')`
           export TITLE=`echo $(echo "$JSON" | jq -r '.[].title')`
           export LOCALID=`echo $(echo "$JSON" | jq -r '.[].discussionId')`
-          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .number')`
+          export LOCALNO=`echo $(echo "$JSON" | jq -r '.[].discussionNo')`
+          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .id')`
+          export REMOTENO=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .number')`
           echo "$LOCALID\n$REMOTEID"
           export DID=$([ "$LOCALID" != "null" ] && echo "$LOCALID" || echo "$REMOTEID")
+          export DNO=$([ "$LOCALID" != "null" ] && echo "$LOCALID" || echo "$REMOTEID")
           export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
-          echo "$SLUG\n$TITLE\n$DID\n$EXISTS"
+          echo "$SLUG\n$TITLE\n$DID\n$DNO\n$EXISTS"
 
           echo "::set-output name=slug::$SLUG"
           echo "::set-output name=title::$TITLE"
           echo "::set-output name=did::$DID"
+          echo "::set-output name=dno::$DNO"
           echo "::set-output name=exists::$EXISTS"
 
   create-discussion:
@@ -149,9 +153,11 @@ jobs:
           cat <<EOF > temp.json
             ${{ steps.create_discussion.outputs.data }}
           EOF
-          DID=$(cat temp.json | jq -r .createDiscussion.discussion.number)
+          DID=$(cat temp.json | jq -r .createDiscussion.discussion.id)
+          DNO=$(cat temp.json | jq -r .createDiscussion.discussion.number)
           echo "::set-output name=did::$DID"
-          echo "Created new discussion with ID: $DID"
+          echo "::set-output name=dno::$DNO"
+          echo "Created new discussion with ID: $DID, number #$DNO"
 
   create-post:
     needs: [get-properties, check-if-discussion-exists, create-discussion]
@@ -174,9 +180,14 @@ jobs:
           NEWDID="${{ needs.create-discussion.outputs.did }}"
           EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
           export DID=$([ "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
+          NEWDNO="${{ needs.create-discussion.outputs.dno }}"
+          EXISTINGDNO="${{ needs.check-if-discussion-exists.outputs.dno }}"
+          export DNO=$([ "$NEWDNO" ] && echo "$NEWDNO" || echo "$EXISTINGDNO")
           echo "New discussion ID = $NEWDID\nExisting discussion ID = $EXISTINGDID\nDiscussion ID = $DID"
+          echo "New discussion number = $NEWDNO\nExisting discussion number = $EXISTINGDNO\nDiscussion number = $DNO"
           [ "$DID" ] || exit 1
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: "'"$DID"'" }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
+          [ "$DNO" ] || exit 1
+          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: "'"$DID"'", discussionNo: "'"$DNO"'" }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
