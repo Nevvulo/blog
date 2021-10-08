@@ -152,7 +152,7 @@ jobs:
           CATEGORY_ID: ${{ secrets.CATEGORY_ID }}
 
       - id: get_ids
-      - run: |
+        run: |
           cat <<EOF > temp.json
             ${{ steps.create_discussion.outputs.data }}
           EOF
