@@ -145,9 +145,9 @@ jobs:
           cat <<EOF > temp.json
             ${{ steps.create_discussion.outputs.data }}
           EOF
-          DID=$(cat temp.json) | jq .createDiscussion.discussion.id
+          DID=$(cat temp.json | jq -r .createDiscussion.discussion.id)
           echo "::set-output name=did::$DID"
-          echo 'Created new discussion with ID: $DID'
+          echo "Created new discussion with ID: $DID"
 
   create-post:
     needs: [get-properties, check-if-discussion-exists, create-discussion]
