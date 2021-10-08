@@ -167,7 +167,7 @@ jobs:
           ${{ needs.get-properties.outputs.json }}
           EOF
 
-      - name: Get Discussion ID (new or existing) + Write to blogmap.json
+      - name: Get Discussion ID (new or existing)
         run: |
           NEWDID="${{ needs.create-discussion.outputs.did }}"
           EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
