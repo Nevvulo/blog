@@ -153,7 +153,7 @@ jobs:
 
   create-post:
     needs: [get-properties, check-if-discussion-exists, create-discussion]
-    if: always()
+    if: always() && needs.get-properties.result == 'success'
     name: Append New Post to blogmap.json
     runs-on: ubuntu-latest
     steps:
