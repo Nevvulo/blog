@@ -170,7 +170,7 @@ jobs:
           EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
           export DID=$([ -n "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
           echo "$NEWDID\n$EXISTINGDID\n$DID"
-          if [[ -n "$DID" ] then
+          if [[ -n "$DID" ]] then
             echo Discussion ID couldn't be retrieved
             exit 1
           fi
