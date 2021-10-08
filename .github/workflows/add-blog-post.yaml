@@ -96,18 +96,20 @@ jobs:
           export JSON=$(cat json.temp)
           echo $JSON
 
+          cat <<EOF > response.json
+          ${{ steps.query_existing_discussion.outputs.data }}
+          EOF
+          export RESPONSEJSON=$(cat response.json)
+
           export SLUG=`echo $(echo "$JSON" | jq '.[].slug')`
           export TITLE=`echo $(echo "$JSON" | jq '.[].title')`
-          export DID=`echo $(echo "$JSON" | jq '.[].discussionId')`
-          if [[ "${{ steps.query_existing_discussion.outputs.data }}" == *"$SLUG"* ]]; then
-            export EXISTS=true
-          else
-            export EXISTS=
-          fi
-          echo $SLUG
-          echo $TITLE
-          echo $DID
-          echo $EXISTS
+          export LOCALID=`echo $(echo "$JSON" | jq -r '.[].discussionId')`
+          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes[] | select(.bodyText == "$SLUG")') | .id`
+
+          export DID=$([ -n "$LOCALID" ] && echo "$LOCALID" || echo "$REMOTEID")
+          export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
+          echo "$SLUG\n$TITLE\n$DID\n$EXISTS"
+
           echo "::set-output name=slug::$SLUG"
           echo "::set-output name=title::$TITLE"
           echo "::set-output name=did::$DID"
