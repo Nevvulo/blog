@@ -104,7 +104,7 @@ jobs:
           export SLUG=`echo $(echo "$JSON" | jq -r '.[].slug')`
           export TITLE=`echo $(echo "$JSON" | jq -r '.[].title')`
           export LOCALID=`echo $(echo "$JSON" | jq -r '.[].discussionId')`
-          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes[] | select(.bodyText == "'"$DID"'") | .id')`
+          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes[] | select(.bodyText == "'"$SLUG"'") | .id')`
           echo "$LOCALID\n$REMOTEID"
           export DID=$([ -n "$LOCALID" ] && echo "$LOCALID" || echo "$REMOTEID")
           export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
