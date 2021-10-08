@@ -167,19 +167,14 @@ jobs:
           ${{ needs.get-properties.outputs.json }}
           EOF
 
-      - name: Get Discussion ID (new or existing)
+      - name: Get Discussion ID (new or existing) + Write to blogmap.json
         run: |
           NEWDID="${{ needs.create-discussion.outputs.did }}"
           EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
           export DID=$([ "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
           echo "New discussion ID = $NEWDID\nExisting discussion ID = $EXISTINGDID\nDiscussion ID = $DID"
           [ "$DID" ] || exit 1
-
-      # Removes entries in blogmap that have the same slug as any incoming
-      # posts and adds properties for new post
-      - name: Write Post Properties to blogmap.json
-        run: |
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: ''"'"$DID"'"'' }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
+          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: "'"$DID"'" }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
