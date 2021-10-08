@@ -174,7 +174,7 @@ jobs:
           export DID=$([ -n "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
           echo "$NEWDID\n$EXISTINGDID\n$DID"
           if [[ -n "$DID" ]]; then
-            echo Discussion ID couldn't be retrieved
+            echo Discussion ID could not be retrieved
             exit 1
           fi
 
