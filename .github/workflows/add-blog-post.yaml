@@ -173,7 +173,7 @@ jobs:
           EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
           export DID=$([ -n "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
           echo "$NEWDID\n$EXISTINGDID\n$DID"
-          [ -n "$DID" ] && exit 1
+          [ -z "$DID" ] && exit 1
 
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
