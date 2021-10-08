@@ -78,6 +78,7 @@ jobs:
                   nodes {
                     id
                     bodyText
+                    number
                   }
                 }
               }
@@ -104,7 +105,7 @@ jobs:
           export SLUG=`echo $(echo "$JSON" | jq -r '.[].slug')`
           export TITLE=`echo $(echo "$JSON" | jq -r '.[].title')`
           export LOCALID=`echo $(echo "$JSON" | jq -r '.[].discussionId')`
-          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .id')`
+          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .number')`
           echo "$LOCALID\n$REMOTEID"
           export DID=$([ "$LOCALID" != "null" ] && echo "$LOCALID" || echo "$REMOTEID")
           export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
@@ -131,6 +132,7 @@ jobs:
               createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: $title}) {
                 discussion {
                   id
+                  number
                 }
               }
             }
@@ -147,7 +149,7 @@ jobs:
           cat <<EOF > temp.json
             ${{ steps.create_discussion.outputs.data }}
           EOF
-          DID=$(cat temp.json | jq -r .createDiscussion.discussion.id)
+          DID=$(cat temp.json | jq -r .createDiscussion.discussion.number)
           echo "::set-output name=did::$DID"
           echo "Created new discussion with ID: $DID"
 
