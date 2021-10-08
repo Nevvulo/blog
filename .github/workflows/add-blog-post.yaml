@@ -171,9 +171,9 @@ jobs:
         run: |
           NEWDID="${{ needs.create-discussion.outputs.did }}"
           EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
-          export DID=$([ -n "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
-          echo "$NEWDID\n$EXISTINGDID\n$DID"
-          [ -z "$DID" ] && exit 1
+          export DID=$([ "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
+          echo "New discussion ID = $NEWDID\nExisting discussion ID = $EXISTINGDID\nDiscussion ID = $DID"
+          [ "$DID" ] || exit 1
 
       # Removes entries in blogmap that have the same slug as any incoming
       # posts and adds properties for new post
