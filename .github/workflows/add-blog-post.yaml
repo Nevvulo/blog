@@ -63,6 +63,7 @@ jobs:
     outputs:
       exists: ${{ steps.metadata.outputs.exists }}
       slug: ${{ steps.metadata.outputs.slug }}
+      slug: ${{ steps.metadata.outputs.dno }}
       title: ${{ steps.metadata.outputs.title }}
       did: ${{ steps.metadata.outputs.did }}
     runs-on: ubuntu-latest
@@ -126,7 +127,8 @@ jobs:
     needs: [get-properties, check-if-discussion-exists]
     runs-on: ubuntu-latest
     outputs:
-      discussion-id: ${{ steps.create_discussion.outputs.data }}
+      did: ${{ steps.get_ids.outputs.did }}
+      dno: ${{ steps.get_ids.outputs.dno }}
     steps:
       - uses: octokit/graphql-action@v2.x
         id: create_discussion
@@ -149,6 +151,7 @@ jobs:
           REPO_ID: ${{ secrets.REPO_ID }}
           CATEGORY_ID: ${{ secrets.CATEGORY_ID }}
 
+      - id: get_ids
       - run: |
           cat <<EOF > temp.json
             ${{ steps.create_discussion.outputs.data }}
