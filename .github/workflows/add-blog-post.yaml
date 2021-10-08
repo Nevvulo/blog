@@ -104,7 +104,7 @@ jobs:
           export SLUG=`echo $(echo "$JSON" | jq '.[].slug')`
           export TITLE=`echo $(echo "$JSON" | jq '.[].title')`
           export LOCALID=`echo $(echo "$JSON" | jq -r '.[].discussionId')`
-          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes[] | select(.bodyText == "$SLUG")') | .id`
+          export REMOTEID=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes[] | select(.bodyText == "$SLUG") | .id')`
 
           export DID=$([ -n "$LOCALID" ] && echo "$LOCALID" || echo "$REMOTEID")
           export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
@@ -153,6 +153,7 @@ jobs:
 
   create-post:
     needs: [get-properties, check-if-discussion-exists, create-discussion]
+    if: always()
     name: Append New Post to blogmap.json
     runs-on: ubuntu-latest
     steps:
