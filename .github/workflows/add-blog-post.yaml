@@ -63,7 +63,7 @@ jobs:
     outputs:
       exists: ${{ steps.metadata.outputs.exists }}
       slug: ${{ steps.metadata.outputs.slug }}
-      slug: ${{ steps.metadata.outputs.dno }}
+      dno: ${{ steps.metadata.outputs.dno }}
       title: ${{ steps.metadata.outputs.title }}
       did: ${{ steps.metadata.outputs.did }}
     runs-on: ubuntu-latest
