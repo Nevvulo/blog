@@ -110,7 +110,7 @@ jobs:
           export REMOTENO=`echo $(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .number')`
           echo "$LOCALID\n$REMOTEID"
           export DID=$([ "$LOCALID" != "null" ] && echo "$LOCALID" || echo "$REMOTEID")
-          export DNO=$([ "$LOCALID" != "null" ] && echo "$LOCALID" || echo "$REMOTEID")
+          export DNO=$([ "$LOCALNO" != "null" ] && echo "$LOCALNO" || echo "$REMOTENO")
           export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
           echo "$SLUG\n$TITLE\n$DID\n$DNO\n$EXISTS"
 
