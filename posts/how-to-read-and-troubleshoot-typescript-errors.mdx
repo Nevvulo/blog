@@ -63,7 +63,7 @@ If `add` is called with three arguments, the second overload is matched:
 
 ![add function called with three arguments, second overload matched](https://imgur.com/Snq6Zik.png)
 
-In Visual Studio Code, you can see the overloads a function has on the left of the tooltip. Overloads aren't widely used in TypeScript anymore, many preferring to use [unions](<[https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html)>).
+In Visual Studio Code, you can see the overloads a function has on the left of the tooltip. Overloads aren't widely used in TypeScript anymore, many preferring to use [unions](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html).
 
 Since we have an error complaining about "no overloads matching this call", we know it's related to arguments being passed into a function with multiple overloads, potentially with the wrong type. If you're seeing this error, it's best to double check that you're passing the right arguments with the right types into the function for the overload you want to target.
 
@@ -81,7 +81,7 @@ Type 'string' is not assignable to type '"string" | "number"'
 
 Usually when you see this error, you'll also see "type `x` is not assignable to type `y`". What does it mean for a type to be "not assignable" to another type?
 
-TypeScript's own documentation [explains what "assignable to"](<[https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html#assignable-to](https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html#assignable-to)>) means, and says a type is considered assignable to another type if "one is an acceptable substitute for another" - basically, both types need to have the same "shape" or structure. You can't assign a `number` to a `string`, and you can't assign `{ a: number }` to `{ a: string }`. In both examples, you couldn't substitute the first type for the second or vice versa.
+TypeScript's own documentation [explains what "assignable to"](https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html#assignable-to) means, and says a type is considered assignable to another type if "one is an acceptable substitute for another" - basically, both types need to have the same "shape" or structure. You can't assign a `number` to a `string`, and you can't assign `{ a: number }` to `{ a: string }`. In both examples, you couldn't substitute the first type for the second or vice versa.
 
 You might encounter this error if an object you're supplying to an argument for a function does not make a suitable substitute for the type the function is requesting for that argument (like the two objects in the example before). Double check that every property in the object you're supplying matches the type definition for the function you're using.
 
@@ -129,7 +129,7 @@ const constantString = "Hello World";
 
 ## Conclusion
 
-The TypeScript documentation has a good [guide to understanding errors better](<[https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html](https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html)>), and there's a lot more you can do if the error you're facing is really stubborn. Try to strip unnecessary parts of code to get to the heart of the problem, or if all else fails, look into creating a [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_working_example) (there's a good guide by [StackOverflow](https://stackoverflow.com/help/minimal-reproducible-example)) to see if you can reproduce the problem from scratch, and divide and conquer to find out if there's something wrong with your code, or potentially a dependency you use.
+The TypeScript documentation has a good [guide to understanding errors better](https://www.typescriptlang.org/docs/handbook/2/understanding-errors.html), and there's a lot more you can do if the error you're facing is really stubborn. Try to strip unnecessary parts of code to get to the heart of the problem, or if all else fails, look into creating a [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_working_example) (there's a good guide by [StackOverflow](https://stackoverflow.com/help/minimal-reproducible-example)) to see if you can reproduce the problem from scratch, and divide and conquer to find out if there's something wrong with your code, or potentially a dependency you use.
 
 <!--[PROPERTIES]
 - slug: 'how-to-read-and-troubleshoot-typescript-errors'
