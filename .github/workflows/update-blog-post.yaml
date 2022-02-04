@@ -24,8 +24,9 @@ jobs:
 
       - name: Read Post Properties and Write to File
         run: |
+          chmod +x ./scripts/*
           for file in "${{ steps.changed-files.outputs.all_modified_files }}"; do
-            /home/runner/work/blog/blog/scripts/extract-blog-properties $file
+            ./scripts/extract-blog-properties $file
           done
 
       # Converts the post-properties.yml file created from the previous step
