@@ -31,7 +31,7 @@ jobs:
           for file in "${{ steps.changed-files.outputs.added_files }}"; do
             echo "::set-output name=filename::$file"
             echo "::set-output name=text::`cat $file`"
-            ./../../scripts/extract-blog-properties $file
+            ./scripts/extract-blog-properties $file
           done
 
       # Converts the post-properties.yml file created from the previous step
@@ -207,7 +207,7 @@ jobs:
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
-        run: ./../../scripts/validate-file-size blogmap.json
+        run: ./scripts/validate-file-size blogmap.json
 
       - name: Validate JSON Schema
         uses: docker://orrosenblatt/validate-json-action:latest
