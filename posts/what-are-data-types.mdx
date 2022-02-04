@@ -4,9 +4,9 @@ A data type at its simplest form is **information for the computer to know how t
 
 What does that mean? Let's say we have a _variable_ (just some place to **store data**) called `x` and we give it a value of `1`. As humans, we know that `1` is a number, and we know we can do certain things with numbers like add 1, remove 1, etc. We know that we can't do **`1` minus `"hello world"`**, that just doesn't make sense... similarly for computers, if we attempt the same thing, we can expect problems.
 
-There are different data types for different classifications of data, like numbers, timestamps, lists, etc. 
+There are different data types for different classifications of data, like numbers, timestamps, lists, etc.
 
-Where necessary, it’s important to associate data with the respective data type. Note that some languages, like JavaScript or Python, are **implicitly typed**, meaning the types of variables are **determined while your program is running**, instead of you needing to specify the types *explicitly*.
+Where necessary, it’s important to associate data with the respective data type. Note that some languages, like JavaScript or Python, are **implicitly typed**, meaning the types of variables are **determined while your program is running**, instead of you needing to specify the types _explicitly_.
 
 This post aims to explain what common data types are used, what their purpose is, and when it’s appropriate to use them.
 
@@ -22,15 +22,15 @@ A string is a sequence of the `char` data type which represents a single charact
 
 Here’s an example of why differentiating between data types is important; if you store a number as a `string` like this:
 
-	let a = "1"
+    let a = "1"
 
-You won’t be able to perform any numerical or mathematical operations on `a` like **adding/subtracting** 1. 
+You won’t be able to perform any numerical or mathematical operations on `a` like **adding/subtracting** 1.
 
 Most languages won’t accept this, but in JavaScript, the specification says to handle cases of mixed data types by automatically converting the incompatible data types to something appropriate to avoid an error:
 
-	console.log("1" + 1) // "11"
+    console.log("1" + 1) // "11"
 
-The result isn’t always what is expected however, so if you want to store something like a **player’s score**, where you know you’ll want to **add or subtract**, you’ll want to use an **integer** or floating point number. 
+The result isn’t always what is expected however, so if you want to store something like a **player’s score**, where you know you’ll want to **add or subtract**, you’ll want to use an **integer** or floating point number.
 
 On the other hand, if you simply want to store something like a **user’s identifier for your app**, even if it’s all numbers (like 615253717252528..), it might be wise to store this and other examples as a **string**. Storing a number with a lot of digits as shown before can result in rounding problems, and if you don’t intend to do any **mathematical operations** on this data, it might be easier to work with.
 
@@ -38,7 +38,7 @@ On the other hand, if you simply want to store something like a **user’s ident
 
 The boolean data type represents a value that has **one of two possible values**, those being either **true** or **false**. Some languages represent this as YES/NO or sometimes as integers (1/0). These are used in expressions to assert **if** a condition is true or false:
 
-	if (variable === true) {
+    if (variable === true) {
 
 An example of using booleans is tracking whether a lightbulb is on or off, where the “on” state is `true` and the “off” state is `false`. You can use a boolean value stored in a variable to control the state of your program by asking questions using if statements.
 
@@ -46,20 +46,20 @@ An example of using booleans is tracking whether a lightbulb is on or off, where
 
 An array is a data type that contains a **collection of elements** (this could be numbers, text, anything), attributed with a number representing what position in the list the element is in (indices).
 
-Arrays are typically denoted by square brackets surrounding the elements, with each new item being delimited by a comma. 
+Arrays are typically denoted by square brackets surrounding the elements, with each new item being delimited by a comma.
 
 Getting the value of an element in an array can be done by specifying the value of the **index** you want to access in the array. An array’s index is `0`-based, so **accessing the second item in the list** can be done by **specifying `1` as the index **and accessing it like a property:
 
-	const names = ["Blake", "John", "Phil"]
-	console.log(standardArray[0]) // "Blake"
-	console.log(standardArray[1]) // "John" < (second item)
-	console.log(standardArray[2]) // "Phil"
+    const names = ["Blake", "John", "Phil"]
+    console.log(standardArray[0]) // "Blake"
+    console.log(standardArray[1]) // "John" < (second item)
+    console.log(standardArray[2]) // "Phil"
 
 (a rare exception to this is in some languages like Lua, arrays use `1`-based indexing, meaning the first element is at index `1`)
 
 Arrays typically have a fixed size and can’t be mutated once defined in lower-level languages, but in higher-level languages like JavaScript, all arrays are automatically defined as [dynamic arrays](https://xlinux.nist.gov/dads/HTML/dynamicarray.html). This means that the array can grow dynamically in size, and you can add or remove elements from any index in the array without needing to worry about memory management.
 
-Some languages like Python have `list`s in conjunction with `array`s, so what’s the difference between a `list` and an `array`? While they’re *very* similar in nature, traditional [arrays](https://en.wikipedia.org/wiki/Array_data_structure) are static and continuous, whereas lists can expand and shrink, and are stored dynamically in memory. This means lists can store elements of different data types.
+Some languages like Python have `list`s in conjunction with `array`s, so what’s the difference between a `list` and an `array`? While they’re _very_ similar in nature, traditional [arrays](https://en.wikipedia.org/wiki/Array_data_structure) are static and continuous, whereas lists can expand and shrink, and are stored dynamically in memory. This means lists can store elements of different data types.
 
 Separately, in weakly-typed languages like JavaScript, it’s possible for the array to have elements of different types: `[ 1, "hello", true ]` is a valid array in JavaScript, but in a strongly-typed language like C#, you’d have to explicitly define what type all of the elements in the array must match, otherwise there would be problems with figuring out what operations should work depending on the index of the array. JavaScript handles all of this automatically, even if it is at the cost of potential unwanted results. For more information on this, check out [“What is the difference between a strongly typed language and a statically typed language?”](https://stackoverflow.com/questions/2690544/what-is-the-difference-between-a-strongly-typed-language-and-a-statically-typed).
 
@@ -83,9 +83,13 @@ Whew, that was a lot we covered. This non-exhaustive guide on data types was int
 - slug: 'what-are-data-types'
   title: 'What are data types?'
   description: "Understand what different data types mean and how to use them"
-  image: "https://images.unsplash.com/reserve/uZYSV4nuQeyq64azfVIn_15130980706_64134efc6e_o.jpg?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2934&q=80"
+  image: cover.jpeg
   createdAt: 1643191130000
   location: 'posts/what-are-data-types.mdx'
+  difficulty: Beginner
+  readTimeMins: 5
+  coverAuthor: Amador Loureiro
+  coverAuthorUrl: https://unsplash.com/@amadorloureiro
   labels:
     - programming
     - fundamentals

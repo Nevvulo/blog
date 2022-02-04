@@ -24,15 +24,37 @@
       },
       "location": {
         "type": "string"
+      },
+      "difficulty": {
+        "type": "string"
+      },
+      "reviewedBy": {
+        "type": "string"
+      },
+      "author": {
+        "type": "string"
+      },
+      "keyIdeas": {
+        "type": "array"
+      },
+      "coverAuthor": {
+        "type": "string"
+      },
+      "coverAuthorUrl": {
+        "type": "string"
+      },
+      "readTimeMins": {
+        "type": "integer"
       }
     },
     "required": [
       "slug",
       "title",
       "description",
+      "author",
       "image",
-      "createdAt",
-      "location"
+      "location",
+      "createdAt"
     ]
   }
 }

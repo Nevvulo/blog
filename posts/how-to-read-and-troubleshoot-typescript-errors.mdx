@@ -49,7 +49,7 @@ function add(a: number, b: number, c?: number) {
 }
 ```
 
-![add function now has two overloads: screenshot shows top function signature with +1 overload](https://imgur.com/0P6OVqB.png)
+![add function now has two overloads: screenshot shows top function signature with +1 overload](./assets/add-overloads.png)
 
 The `add` function now has two overloads. It can be confusing, but the first two lines are [function signatures](<[https://developer.mozilla.org/en-US/docs/Glossary/Signature/Function](https://developer.mozilla.org/en-US/docs/Glossary/Signature/Function)>) and the last is the actual implementation for the function. The top definition has priority, and the line under that is the overload: `a`, `b` and `c` must all be numbers and `add` must return a boolean.
 
@@ -57,11 +57,11 @@ The compiler will _match_ a specific overload, provided the _call_ to the functi
 
 If `add` is called with two arguments, the first overload is matched:
 
-![add function called with two arguments, first overload matched](https://imgur.com/0cFY8q7.png)
+![add function called with two arguments, first overload matched](./assets/add-signature.png)
 
 If `add` is called with three arguments, the second overload is matched:
 
-![add function called with three arguments, second overload matched](https://imgur.com/Snq6Zik.png)
+![add function called with three arguments, second overload matched](./assets/add-signature-three-args.png)
 
 In Visual Studio Code, you can see the overloads a function has on the left of the tooltip. Overloads aren't widely used in TypeScript anymore, many preferring to use [unions](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html).
 
@@ -135,9 +135,11 @@ The TypeScript documentation has a good [guide to understanding errors better](h
 - slug: 'how-to-read-and-troubleshoot-typescript-errors'
   title: 'How to read & troubleshoot TypeScript errors'
   description: "Understand some common errors and what they mean instead of pulling your hair out"
-  image: "https://imgur.com/TZbI4RK.png"
+  image: cover.png
   createdAt: 1631624754881
   location: 'posts/how-to-read-and-troubleshoot-typescript-errors.mdx'
+  readTimeMins: 7
+  difficulty: Advanced
   labels:
     - programming
     - typescript
