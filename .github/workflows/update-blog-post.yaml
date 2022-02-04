@@ -63,9 +63,10 @@ jobs:
       - name: Get Discussion ID (new or existing)
         run: |
           export JSON=$(cat post-properties.json)
-          SLUG=
+          echo $JSON
           DID=$(echo "$JSON" | jq -r '.[].discussionId')
           DNO=$(echo "$JSON" | jq -r '.[].discussionNo')
+          echo $DID
           MEDIUMURL=$(echo "$JSON" | jq -r '.[].mediumUrl')
           MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId')
           [ "$DID" ] || exit 1
