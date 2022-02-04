@@ -73,7 +73,7 @@ jobs:
 
         # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
-        run: ./../../scripts/validate-file-size blogmap.json
+        run: ./scripts/validate-file-size blogmap.json
 
       - name: Validate JSON Schema
         uses: docker://orrosenblatt/validate-json-action:latest
