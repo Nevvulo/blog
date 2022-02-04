@@ -25,7 +25,7 @@ jobs:
       - name: Read Post Properties and Write to File
         run: |
           chmod +x ./scripts/extract-blog-properties.sh
-          ./scripts/extract-blog-properties ${{ steps.changed-files.outputs.all_modified_files }}
+          ./scripts/extract-blog-properties.sh ${{ steps.changed-files.outputs.all_modified_files }}
 
       # Converts the post-properties.yml file created from the previous step
       # to JSON to be written into blogmap.json
