@@ -54,14 +54,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Write Properties to post-properties.json
+      - name: Get Discussion ID (new or existing)
         run: |
           cat <<EOF > post-properties.json
           ${{ needs.get-properties.outputs.json }}
           EOF
-
-      - name: Get Discussion ID (new or existing)
-        run: |
           export JSON=$(cat post-properties.json)
           echo $JSON
           DID=$(echo "$JSON" | jq -r '.[].discussionId')
