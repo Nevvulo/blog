@@ -62,10 +62,12 @@ jobs:
 
       - name: Get Discussion ID (new or existing)
         run: |
-          DID=$(jq --slurpfile post post-properties.json '$post[][].discussionId' blogmap.json -c)
-          DNO=$(jq --slurpfile post post-properties.json '$post[][].discussionNo' blogmap.json -c)
-          MEDIUMURL=$(jq --slurpfile post post-properties.json '$post[][].mediumUrl' blogmap.json -c)
-          MEDIUMID=$(jq --slurpfile post post-properties.json '$post[][].mediumId' blogmap.json -c)
+          export JSON=$(cat post-properties.json)
+          SLUG=
+          DID=$(echo "$JSON" | jq -r '.[].discussionId')
+          DNO=$(echo "$JSON" | jq -r '.[].discussionNo')
+          MEDIUMURL=$(echo "$JSON" | jq -r '.[].mediumUrl')
+          MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId')
           [ "$DID" ] || exit 1
           [ "$DNO" ] || exit 1
           echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: "'"$DID"'", discussionNo: "'"$DNO"'", mediumUrl: "'"$MEDIUMURL"'", mediumId: "'"$MEDIUMID"'" }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
