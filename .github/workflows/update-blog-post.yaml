@@ -7,7 +7,6 @@ on:
       - "posts/**"
 jobs:
   get-properties:
-    if: github.event.head_commit.modified[0] != null
     name: Get Metadata from Post
     outputs:
       json: ${{ steps.metadata.outputs.json }}
