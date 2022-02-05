@@ -23,9 +23,7 @@ jobs:
           files: posts
 
       - name: Read Post Properties and Write to File
-        run: |
-          chmod +x ./scripts/extract-blog-properties.sh
-          ./scripts/extract-blog-properties.sh ${{ steps.changed-files.outputs.all_modified_files }}
+        run: ./scripts/extract-blog-properties.sh ${{ steps.changed-files.outputs.all_modified_files }}
 
       # Converts the post-properties.yml file created from the previous step
       # to JSON to be written into blogmap.json
@@ -65,7 +63,7 @@ jobs:
 
         # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
-        run: ./scripts/validate-file-size blogmap.json
+        run: ./scripts/validate-file-size.sh blogmap.json
 
       - name: Validate JSON Schema
         uses: docker://orrosenblatt/validate-json-action:latest
