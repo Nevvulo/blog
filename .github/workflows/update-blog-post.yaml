@@ -9,7 +9,7 @@ jobs:
   get-properties:
     name: Get Metadata from Post
     outputs:
-      json: ${{ steps.metadata.outputs.json }}
+      json: ${{ steps.yaml2json.outputs.data }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -37,17 +37,10 @@ jobs:
           from: "yaml"
           to: "json"
 
-      - name: Write JSON Properties to File
-        run: |
-          cat <<EOF > post-properties.json
-          ${{ steps.yaml2json.outputs.data }}
-          EOF
-          echo "::set-output name=json::`cat post-properties.json`"
-
   update-post:
     name: Update Metadata in blogmap.json
-    if: always() && needs.get-properties.result == 'success'
     needs: [get-properties]
+    if: always() && needs.get-properties.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -56,10 +49,7 @@ jobs:
 
       - name: Get Discussion ID (new or existing)
         run: |
-          cat <<EOF > post-properties.json
-          ${{ needs.get-properties.outputs.json }}
-          EOF
-          export JSON=$(cat post-properties.json)
+          export JSON=${{ needs.get-properties.outputs.json }}
           echo $JSON
           DID=$(echo "$JSON" | jq -r '.[].discussionId')
           DNO=$(echo "$JSON" | jq -r '.[].discussionNo')
