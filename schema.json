@@ -51,7 +51,6 @@
       "slug",
       "title",
       "description",
-      "author",
       "image",
       "location",
       "createdAt"

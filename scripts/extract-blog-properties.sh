@@ -12,4 +12,3 @@ echo "$file"
 export PROPERTIES=$(tail -n `grep -e "<\!--\[PROPERTIES\]" -n $file | awk -F ":" '{print "+"$1}'` $file | tail -n +2 | sed '$d' || exit 1)
 [ "$PROPERTIES" ] || (echo "Error occurred while processing blog properties for $file: ensure that the properties exist at the bottom of the blog file and are in the correct format." && exit 1)
 echo -e "$PROPERTIES" >> post-properties.yml
-echo $(cat post-properties.yml)

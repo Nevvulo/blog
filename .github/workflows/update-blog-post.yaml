@@ -6,10 +6,8 @@ on:
     paths:
       - "posts/**"
 jobs:
-  get-properties:
-    name: Get Metadata from Post
-    outputs:
-      json: ${{ steps.yaml2json.outputs.data }}
+  setup:
+    name: Update Posts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,9 +19,13 @@ jobs:
         uses: tj-actions/changed-files@v1.0.0
         with:
           files: posts
+          separator: " "
 
       - name: Read Post Properties and Write to File
-        run: ./scripts/extract-blog-properties.sh ${{ steps.changed-files.outputs.all_modified_files }}
+        run: |
+          for file in "${{ steps.changed-files.outputs.all_modified_files }}"; do
+            ./scripts/extract-blog-properties.sh $file
+          done
 
       # Converts the post-properties.yml file created from the previous step
       # to JSON to be written into blogmap.json
@@ -31,37 +33,20 @@ jobs:
         uses: fabasoad/yaml-json-xml-converter-action@main
         id: yaml2json
         with:
-          path: "post-properties.yml"
+          path: post-properties.yml
           from: "yaml"
           to: "json"
 
-  update-post:
-    name: Update Metadata in blogmap.json
-    needs: [get-properties]
-    if: always() && needs.get-properties.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Get Discussion ID (new or existing)
+      - name: Write JSON Properties to File
         run: |
           cat <<EOF > post-properties.json
-          ${{ needs.get-properties.outputs.json }}
+          ${{ steps.yaml2json.outputs.data }}
           EOF
-          export JSON=$(cat post-properties.json)
-          echo $JSON
-          DID=$(echo "$JSON" | jq -r '.[].discussionId')
-          DNO=$(echo "$JSON" | jq -r '.[].discussionNo')
-          echo $DID
-          MEDIUMURL=$(echo "$JSON" | jq -r '.[].mediumUrl')
-          MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId')
-          [ "$DID" ] || exit 1
-          [ "$DNO" ] || exit 1
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: "'"$DID"'", discussionNo: "'"$DNO"'", mediumUrl: "'"$MEDIUMURL"'", mediumId: "'"$MEDIUMID"'" }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
 
-        # Validates that blogmap.json was written with the correct contents
+      - name: Update Post in blogmap.json
+        run: ./scripts/upsert-post-in-blogmap.sh post-properties.json
+
+      # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
         run: ./scripts/validate-file-size.sh blogmap.json
 
