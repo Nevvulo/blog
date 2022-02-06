@@ -83,13 +83,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: |
+      - id: metadata
+        run: |
           cat <<EOF > json.temp
           ${{ needs.get-properties.outputs.json }}
           EOF
-
-      - id: metadata
-        run: |
           export JSON=$(cat json.temp)
           echo $JSON
 
@@ -230,7 +228,7 @@ jobs:
       slug: ${{ steps.properties.outputs.slug }}
       description: ${{ steps.properties.outputs.description }}
       twitterStatus: ${{ steps.properties.outputs.twitterStatus }}
-    if: always() && needs.get-properties.result == 'success'
+    if: always() && needs.create-post.result == 'success'
     name: Cross-post to Other Platforms
     runs-on: ubuntu-latest
     steps:

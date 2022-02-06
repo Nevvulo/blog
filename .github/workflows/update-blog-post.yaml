@@ -44,7 +44,7 @@ jobs:
           EOF
 
       - name: Update Post in blogmap.json
-        run: ./scripts/upsert-post-in-blogmap.sh post-properties.json
+        run: ./scripts/upsert-post-in-blogmap.sh $(cat post-properties.json)
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size

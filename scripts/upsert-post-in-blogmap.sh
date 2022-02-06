@@ -1,3 +1,4 @@
+JSON=$1
 DID=$(echo "$JSON" | jq -r '.[].discussionId')
 DNO=$(echo "$JSON" | jq -r '.[].discussionNo')
 MEDIUMURL=$(echo "$JSON" | jq -r '.[].mediumUrl')
