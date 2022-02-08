@@ -7,7 +7,7 @@ on:
       - "posts/**"
 jobs:
   get-properties:
-    if: ${{ github.event.commits[0].added[0] != null }}
+    if: ${{ contains(github.event.commits[0].message, "[P]") }}
     name: Get Metadata from Post
     outputs:
       json: ${{ steps.metadata.outputs.json }}
