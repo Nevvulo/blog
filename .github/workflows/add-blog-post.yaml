@@ -7,7 +7,7 @@ on:
       - "posts/**"
 jobs:
   get-properties:
-    if: github.event.head_commit.added[0] != null
+    if: ${{ github.event.commits[0].added[0] != null }}
     name: Get Metadata from Post
     outputs:
       json: ${{ steps.metadata.outputs.json }}
@@ -28,6 +28,7 @@ jobs:
       - name: Read Post Properties and Write to File
         id: read-file
         run: |
+          echo "${{ fromJSON(github.event.commits) }}""
           for file in "${{ steps.changed-files.outputs.added_files }}"; do
             echo "::set-output name=filename::$file"
             echo "::set-output name=text::`cat $file`"
