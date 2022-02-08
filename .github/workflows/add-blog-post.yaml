@@ -168,6 +168,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
       - name: Write Properties to post-properties.json
         run: |
           cat <<EOF > post-properties.json
@@ -176,6 +180,7 @@ jobs:
 
       - id: properties
         run: |
+          npm install @redcode/medium-sdk
           export JSON=$(cat post-properties.json)
           MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId')
           echo "::set-output name=medium-exists::$MEDIUM"
