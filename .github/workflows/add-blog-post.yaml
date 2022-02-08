@@ -28,7 +28,6 @@ jobs:
       - name: Read Post Properties and Write to File
         id: read-file
         run: |
-          echo "${{ fromJSON(github.event.commits) }}"
           for file in "${{ steps.changed-files.outputs.added_files }}"; do
             echo "::set-output name=filename::$file"
             echo "::set-output name=text::`cat $file`"
