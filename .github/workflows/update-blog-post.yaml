@@ -7,7 +7,7 @@ on:
       - "posts/**"
 jobs:
   setup:
-    if: ${{ contains(github.event.commits[0].message, "[U]") }}
+    if: ${{ contains(github.event.commits[0].message, '[U]'') }}
     name: Update Posts
     runs-on: ubuntu-latest
     steps:
