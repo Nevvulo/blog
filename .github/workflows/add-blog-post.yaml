@@ -30,7 +30,8 @@ jobs:
         run: |
           for file in "${{ steps.changed-files.outputs.added_files }}"; do
             echo "::set-output name=filename::$file"
-            echo "::set-output name=text::`cat $file`"
+            contents=`cat $file`
+            echo "::set-output name=text::$contents"
             ./scripts/extract-blog-properties.sh $file
           done
 
@@ -51,7 +52,9 @@ jobs:
           EOF
 
       - id: metadata
-        run: echo "::set-output name=json::`cat post-properties.json`"
+        run: |
+          properties=`cat post-properties.json`
+          echo "::set-output name=json::$properties"
 
   check-if-discussion-exists:
     name: Check If Discussion Already Exists
