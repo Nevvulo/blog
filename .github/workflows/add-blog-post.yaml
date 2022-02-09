@@ -180,7 +180,7 @@ jobs:
           MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId')
           echo "::set-output name=medium-exists::$MEDIUM"
 
-      - uses: Nevvulo/post-medium-action@main
+      - uses: infraway/medium-post-markdown@v1.6.0
         if: ${{ steps.properties.outputs.medium-exists == '' || steps.properties.outputs.medium-exists == 'null' }}
         id: medium
         name: Publish Post to Medium
@@ -254,12 +254,12 @@ jobs:
           echo "::set-output name=title::$(echo "$JSON" | jq -r '.[].title')"
           echo "::set-output name=description::$DESCRIPTION"
 
-      - name: Publish Post to dev.to
-        uses: sinedied/publish-devto@v2
-        with:
-          devto_key: ${{ secrets.DEVTO_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: ${{ needs.get-properties.outputs.filename }}
+      # - name: Publish Post to dev.to
+      #   uses: sinedied/publish-devto@v2
+      #   with:
+      #     devto_key: ${{ secrets.DEVTO_TOKEN }}
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     files: ${{ needs.get-properties.outputs.filename }}
 
       - uses: bluwy/release-for-reddit-action@v1
         name: Publish to Nevulo Sub-reddit
@@ -269,7 +269,8 @@ jobs:
           app-id: ${{ secrets.REDDIT_APP_ID }}
           app-secret: ${{ secrets.REDDIT_APP_SECRET }}
           title: ${{ steps.properties.outputs.title }}
-          flair_text: Blog Post
+          flair-text: Blog Post
+          url: ${{ steps.properties.outputs.url }}
           subreddit: Nevulo # Submit to /r/Nevulo
 
       # Send automated tweet
