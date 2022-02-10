@@ -224,60 +224,60 @@ jobs:
           message: "Update blogmap.json"
           signoff: true
 
-  publish-post:
-    needs: [get-properties, create-post]
-    outputs:
-      title: ${{ steps.properties.outputs.title }}
-      slug: ${{ steps.properties.outputs.slug }}
-      description: ${{ steps.properties.outputs.description }}
-      twitterStatus: ${{ steps.properties.outputs.twitterStatus }}
-    if: always() && needs.create-post.result == 'success'
-    name: Cross-post to Other Platforms
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+  # publish-post:
+  #   needs: [get-properties, create-post]
+  #   outputs:
+  #     title: ${{ steps.properties.outputs.title }}
+  #     slug: ${{ steps.properties.outputs.slug }}
+  #     description: ${{ steps.properties.outputs.description }}
+  #     twitterStatus: ${{ steps.properties.outputs.twitterStatus }}
+  #   if: always() && needs.create-post.result == 'success'
+  #   name: Cross-post to Other Platforms
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: 0
 
-      - id: properties
-        run: |
-          cat <<EOF > json.temp
-          ${{ needs.get-properties.outputs.json }}
-          EOF
-          export JSON=$(cat json.temp)
-          SLUG=$(echo "$JSON" | jq -r '.[].slug')
-          DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
-          URL=https://nevulo.xyz/blog/$SLUG
-          echo "::set-output name=url::$URL"
-          echo "::set-output name=twitterStatus::`$DESCRIPTION`: $URL"
-          echo "::set-output name=slug::$SLUG"
-          echo "::set-output name=title::$(echo "$JSON" | jq -r '.[].title')"
-          echo "::set-output name=description::$DESCRIPTION"
+  #     - id: properties
+  #       run: |
+  #         cat <<EOF > json.temp
+  #         ${{ needs.get-properties.outputs.json }}
+  #         EOF
+  #         export JSON=$(cat json.temp)
+  #         SLUG=$(echo "$JSON" | jq -r '.[].slug')
+  #         DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
+  #         URL=https://nevulo.xyz/blog/$SLUG
+  #         echo "::set-output name=url::$URL"
+  #         echo "::set-output name=twitterStatus::`$DESCRIPTION`: $URL"
+  #         echo "::set-output name=slug::$SLUG"
+  #         echo "::set-output name=title::$(echo "$JSON" | jq -r '.[].title')"
+  #         echo "::set-output name=description::$DESCRIPTION"
 
-      # - name: Publish Post to dev.to
-      #   uses: sinedied/publish-devto@v2
-      #   with:
-      #     devto_key: ${{ secrets.DEVTO_TOKEN }}
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     files: ${{ needs.get-properties.outputs.filename }}
+  #     # - name: Publish Post to dev.to
+  #     #   uses: sinedied/publish-devto@v2
+  #     #   with:
+  #     #     devto_key: ${{ secrets.DEVTO_TOKEN }}
+  #     #     github_token: ${{ secrets.GITHUB_TOKEN }}
+  #     #     files: ${{ needs.get-properties.outputs.filename }}
 
-      - uses: bluwy/release-for-reddit-action@v1
-        name: Publish to Nevulo Sub-reddit
-        with:
-          username: ${{ secrets.REDDIT_USERNAME }}
-          password: ${{ secrets.REDDIT_PASSWORD }}
-          app-id: ${{ secrets.REDDIT_APP_ID }}
-          app-secret: ${{ secrets.REDDIT_APP_SECRET }}
-          title: ${{ steps.properties.outputs.title }}
-          flair-text: Blog Post
-          url: ${{ steps.properties.outputs.url }}
-          subreddit: Nevulo # Submit to /r/Nevulo
+  #     - uses: bluwy/release-for-reddit-action@v1
+  #       name: Publish to Nevulo Sub-reddit
+  #       with:
+  #         username: ${{ secrets.REDDIT_USERNAME }}
+  #         password: ${{ secrets.REDDIT_PASSWORD }}
+  #         app-id: ${{ secrets.REDDIT_APP_ID }}
+  #         app-secret: ${{ secrets.REDDIT_APP_SECRET }}
+  #         title: ${{ steps.properties.outputs.title }}
+  #         flair-text: Blog Post
+  #         url: ${{ steps.properties.outputs.url }}
+  #         subreddit: Nevulo # Submit to /r/Nevulo
 
-      # Send automated tweet
-      - uses: ethomson/send-tweet-action@v1
-        with:
-          status: ${{ steps.properties.outputs.twitterStatus }}
-          consumer-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
-          consumer-secret: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
-          access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+  #     # Send automated tweet
+  #     - uses: ethomson/send-tweet-action@v1
+  #       with:
+  #         status: ${{ steps.properties.outputs.twitterStatus }}
+  #         consumer-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+  #         consumer-secret: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
+  #         access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+  #         access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
