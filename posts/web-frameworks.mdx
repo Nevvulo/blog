@@ -1,0 +1,176 @@
+# What’s a web framework?
+
+There are hundreds of web frameworks out there, all for different purposes and with different capabilities.
+
+Let’s say you want to get started creating a slightly more advanced web application. Something like a content manager, or a web app to chat with your mates.
+How can using a web framework help you build the layout you want without constantly rewriting your code, and which one do you pick?
+
+## What is a framework?
+
+You can think of a framework like a **structure** that you can build software on.
+In this case, a foundation to help you build your website with _common capabilities_, and _abstracts_ complicated logic for communicating with different parts of your application.
+
+A framework can be used to save developers time when needing to do simple but repetitive things like creating a button, or creating components for common elements on the page. It’s a bit of a loose term, so your mileage may vary based on how much is in a framework, but they all follow the rough definition above.
+
+### Client-side vs server-side frameworks
+
+One thing to clarify is in this guide, I’ll be talking about **client-side frameworks**. The difference is pretty insignificant, but it’s worth mentioning.
+
+“Client-side” generally refers to the browser, window, or device that the user is running your website or application from.
+
+The main difference between client-side and server-side frameworks is websites built using client-side frameworks will be directly modifying the DOM (Document Object Model, our document). All the work to generate and render the page is done on the user’s device.
+
+With a server-side framework, the processing to render the page is done on the server and the result gets sent back to the user over the wire. You can learn more about the trade-offs between client-side rendering and server-side rendering [here](https://developers.google.com/web/updates/2019/02/rendering-on-the-web "here").
+
+## What does a web framework help us accomplish?
+
+A _web_ framework is probably most helpful for developers to help compartmentalise parts of your website or application, so you can _reuse_ them later.
+
+If you’re making a web application with which displays 100 users in a list with their avatar and name, it doesn’t make sense to write raw HTML code to show an element with an image and text 100 times over.
+
+If you need to update the data in real time, dynamically, you need some way to iteratively create components on the page based on data you receive from a server.
+
+With web frameworks, we get the ability to write a portion of HTML code in a reusable component which we can put anywhere we want, at any time, with no repetition. Instead of writing out 100 elements, we can write it once, use it anywhere or in a loop.
+
+## What’s out there?
+
+### [React](https://reactjs.org/docs/getting-started.html "React")
+
+_Beginner-friendly, documentation is a bit outdated, lots of community resources to learn_
+React is a JavaScript library for building user interfaces. It lets you create components through a language called JSX, which lets you write HTML inside of JavaScript. It’s developed by [Meta](https://github.com/facebook) behind Facebook, and powers tens of thousands of large sites for all kinds of uses.
+
+Furthermore, it’s great for simple projects, but allows you to transition your project to have more complex logic through “hooks”, which let you run code when your components render.
+
+#### How does it work?
+
+Any function that returns HTML code are components which can be reused anywhere in your website code:
+
+```js
+function Title() {
+  return <h1>Hello there!</h1>;
+}
+
+function Website() {
+  return (
+    <div>
+      <Title />
+      <p>This is my website</p>
+    </div>
+  );
+}
+
+ReactDOM.render(<Website />, document.getElementById("root"));
+```
+
+### [Angular](https://angular.io/ "Angular")
+
+_Slightly more advanced, uses decorators, documentation is straightforward and plenty of community resources_
+Angular is a development platform built on TypeScript. It includes things like:
+
+- Components
+- Built-in routing and navigation
+- Client-server communication
+
+#### How does it work?
+
+It works by creating custom components in separate files (`[component name].component.ts`) that link to templates, which define how the component should render on the page. You can then define what the “selector” should be when you use the component in your real website code.
+
+For example, a component with a selector of `user-profile-avatar` could be used in your HTML code like a real element: `<user-profile-avatar>`
+
+```js
+@Component({
+  selector: "custom-title",
+  templateUrl: "./title.component.html",
+})
+// can be used in HTML as <custom-title>
+export class Title {}
+```
+
+When creating a component, you can have a `templateUrl` which will point to a separate HTML file where you store what will render when the component loads. You can also give the HTML to render directly using `template`:
+
+```js
+@Component({
+  selector: "custom-title",
+  template: "<h1>Hello World!</h1>",
+})
+export class Title {}
+```
+
+### [Vue](https://vuejs.org/ "Vue")
+
+_Tightly integrated with HTML, lower learning curve, good for simple projects_
+Vue (pronounced like **view**) is a framework for building user interfaces, providing a declarative and component-based model built on top of HTML, CSS, and JavaScript.
+
+#### How does it work?
+
+Simple button counter:
+
+```html
+<script>
+  export default {
+    data() {
+      return {
+        count: 0,
+      };
+    },
+  };
+</script>
+
+<template>
+  <button @click="count++">Count is: {{ count }}</button>
+</template>
+
+<style scoped>
+  button {
+    font-weight: bold;
+  }
+</style>
+```
+
+### [Ember](https://guides.emberjs.com/release/getting-started/quick-start/)
+
+Ember.js is the oldest framework on the list that lets you construct websites and applications using templates and components through HTML and JavaScript with `.hbs` files.
+
+#### How does it work?
+
+In Ember, you start with a “template”, which defines how your website or page will render to the user. The main template is the “application template”, in a folder called `templates` and a filename of `application.hbs`.
+
+When you want to break your application down further into smaller components, you can create a `components` folder that contain `.hbs` files, which will house all the HTML that shows up for that component.
+
+You can then use the component anywhere, either in a template or using other smaller components to make up bigger ones. If you name your component `title.hbs` in your `components` folder, you can use it automatically like this in your HTML:
+
+```html
+<div>
+  <title />
+</div>
+```
+
+## What should I look for in a framework?
+
+At the end of the day, the main benefits from using a framework (or a library) include:
+
+- saving you (the developer) time
+- getting to an MVP (minimal viable product) quicker
+- having the structure of your website or application decided for you in an opinionated way, so you don’t need to fuss around with trying to find “what is the best”
+
+One thing that you shouldn’t stress over when looking for a framework is _performance_: if you want to create great applications for your users, it’s more important they get good functionality from the app, and there are plenty of optimisations you can make down the road if it becomes a problem.
+
+If you’re trying to pick a specific framework like the ones listed above, a good place to start is finding a framework where the actual code you’re writing makes sense. If it doesn’t, see whether there’s good documentation or a strong community to help.
+
+Some frameworks are easier to wrap your head around than others, but if you choose a popular framework, there’s no doubt there’ll be people to help you on StackOverflow or other communities.
+
+<!--[PROPERTIES]
+- slug: 'web-frameworks'
+  title: 'What’s a web framework?'
+  description: "Understanding what a web framework does and how it helps you build more dynamic websites"
+  image: cover.jpg
+  createdAt: 1645742929000
+  location: 'posts/web-frameworks.mdx'
+  difficulty: Intermediate
+  readTimeMins: 5
+  author: Nevulo
+  labels:
+    - programming
+    - javascript
+    - html
+-->
