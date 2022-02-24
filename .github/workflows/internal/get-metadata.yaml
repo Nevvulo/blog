@@ -1,0 +1,73 @@
+name: Get Metadata
+
+on:
+  workflow_call:
+    inputs:
+      file:
+        required: true
+        type: string
+
+    # Map the workflow outputs to job outputs
+    outputs:
+      json:
+        value: ${{ jobs.get-properties.outputs.json }}
+      contents:
+        value: ${{ jobs.get-properties.outputs.contents }}
+      slug:
+        value: ${{ jobs.export.outputs.slug }}
+      title:
+        value: ${{ jobs.export.outputs.title }}
+      body:
+        value: ${{ jobs.export.outputs.body }}
+      description: 
+        value: ${{ jobs.export.outputs.description }}
+      image: 
+        value: ${{ jobs.export.outputs.image }}
+      original_url:
+        value: ${{ jobs.export.outputs.original_url }}
+      tags:
+        value: ${{ jobs.export.outputs.tags }}
+
+get-properties:
+  name: Get Metadata from Post
+  outputs:
+    json: ${{ steps.yq.outputs.result }}
+    contents: ${{ steps.read-file.outputs.contents }}
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v2
+
+    - name: Read Post Properties and Write to File
+      id: read-file
+      run: |
+        echo "::set-output name=contents::`cat ${{ inputs.file }}`"
+        ./scripts/extract-blog-properties.sh ${{ inputs.file }}
+
+    # Converts the post-properties.yml file created from the previous step
+    # to JSON to be written into blogmap.json
+    - name: Convert YAML File to JSON
+      id: yq
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq e -c -j post-properties.yaml
+
+    - name: Export Properties
+      id: export
+      run: |
+        cat <<EOF > post-properties.json
+        ${{ steps.yq.outputs.result }}
+        EOF
+        export SLUG=$(echo "$JSON" | jq -r '.[].slug')
+        export TITLE=$(echo "$JSON" | jq -r '.[].title')
+        export BODY=$(echo "$JSON" | jq -r '.[].body')
+        export DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
+        export IMAGE=$(echo "$JSON" | jq -r '.[].image')
+        export ORIGINAL_URL=https://nevulo.xyz/blog/$(echo "$JSON" | jq -r '.[].slug')
+        export TAGS=$(echo "$JSON" | jq -r '.[].tags')
+        echo "::set-output name=slug::$SLUG"
+        echo "::set-output name=title::$TITLE"
+        echo "::set-output name=body::$BODY"
+        echo "::set-output name=description::$DESCRIPTION"
+        echo "::set-output name=image::$IMAGE"
+        echo "::set-output name=original_url::$ORIGINAL_URL"
+        echo "::set-output name=tags::$TAGS"

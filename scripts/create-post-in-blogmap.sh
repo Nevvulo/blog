@@ -1,20 +1,18 @@
 JSON=$1
 echo $JSON
 
-DID=$(echo "$JSON" | jq -r '.[].discussionId | select (.!=null)')
-DNO=$(echo "$JSON" | jq -r '.[].discussionNo | select (.!=null)')
-MEDIUMURL=$(echo "$JSON" | jq -r '.[].mediumUrl | select (.!=null)')
-MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId | select (.!=null)')
-SLUG=$(echo "$JSON" | jq '.[].slug')
-
 jq -M '
   [group_by(.slug)[]
   | add 
   | . += {
-    discussionId: "'"$DID"'",
-    discussionNo: "'"$DNO"'",
-    mediumUrl: "'"$MEDIUMURL"'",
-    mediumId: "'"$MEDIUMID"'"
+    discussionId: "'"$DISCUSSION_ID"'",
+    discussionNo: "'"$DISCUSSION_NO"'",
+    mediumUrl: "'"$MEDIUM_URL"'",
+    mediumId: "'"$MEDIUM_ID"'",
+    devToId: "'"$DEVTO_ID"'",
+    devToUrl: "'"$DEVTO_URL"'",
+    hashnodeId: "'"$HASHNODE_ID"'",
+    hashnodeUrl: "'"$HASHNODE_URL"'",
   }]
   | sort_by(.createdAt)
   | reverse' post-properties.json > updated-properties.json

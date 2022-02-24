@@ -6,205 +6,66 @@ on:
     paths:
       - "posts/**"
 jobs:
-  get-properties:
+  create:
+    # Only publish a new post if the commit message contains [P]
     if: ${{ contains(github.event.commits[0].message, '[P]') }}
-    name: Get Metadata from Post
-    outputs:
-      json: ${{ steps.metadata.outputs.json }}
-      text: ${{ steps.read-file.outputs.text }}
-      filename: ${{ steps.read-file.outputs.filename }}
+    name: Create New Post
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout 
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Get specific changed files
+      - name: Get Changed Files
         id: changed-files
-        uses: tj-actions/changed-files@v1.0.0
+        uses: tj-actions/changed-files@v14.6
         with:
           files: posts
+          separator: " "
 
-      - name: Read Post Properties and Write to File
-        id: read-file
-        run: |
-          for file in "${{ steps.changed-files.outputs.added_files }}"; do
-            echo "::set-output name=filename::$file"
-            contents=`cat $file`
-            echo "::set-output name=text::$contents"
-            ./scripts/extract-blog-properties.sh $file
-          done
-
-      # Converts the post-properties.yml file created from the previous step
-      # to JSON to be written into blogmap.json
-      - name: Convert Post Properties to JSON
-        uses: fabasoad/yaml-json-xml-converter-action@main
-        id: yaml2json
+      # GET METADATA
+      - name: Get Metadata for Post
+        id: metadata
+        uses: ./internal/get-metadata
         with:
-          path: "post-properties.yml"
-          from: "yaml"
-          to: "json"
+          # TODO: currently only supports one file
+          file: ${{ steps.changed-files.outputs.added-files }}
 
-      - name: Write JSON Properties to File
-        run: |
-          cat <<EOF > post-properties.json
-          ${{ steps.yaml2json.outputs.data }}
-          EOF
-
-      - id: metadata
-        run: |
-          properties=`cat post-properties.json`
-          echo "::set-output name=json::$properties"
-
-  check-if-discussion-exists:
-    name: Check If Discussion Already Exists
-    outputs:
-      exists: ${{ steps.metadata.outputs.exists }}
-      slug: ${{ steps.metadata.outputs.slug }}
-      dno: ${{ steps.metadata.outputs.dno }}
-      title: ${{ steps.metadata.outputs.title }}
-      did: ${{ steps.metadata.outputs.did }}
-    runs-on: ubuntu-latest
-    needs: get-properties
-    steps:
-      - uses: octokit/graphql-action@v2.x
-        id: query_existing_discussion
+      # CROSS-POST TO OTHER PLATFORMS
+      - name: Cross-post to Other Platforms
+        id: cross-post
+        uses: ./internal/cross-post-externally
         with:
-          query: |
-            query discussion($categoryid:ID!) {
-              repository(owner: "Nevvulo", name: "blog") {
-                discussions(categoryId: $categoryid, first: 100) {
-                  nodes {
-                    id
-                    bodyText
-                    number
-                  }
-                }
-              }
-            }
-          categoryid: ${{ secrets.CATEGORY_ID }}
+          file: ${{ steps.changed-files.outputs.added-files }}
+          slug: ${{ steps.metadata.outputs.slug }}
+          title: ${{ steps.metadata.outputs.title }}
+          body: ${{ steps.metadata.outputs.body }}
+          description: ${{ steps.metadata.outputs.description }}
+          image: ${{ steps.metadata.outputs.image }}
+          original_url: ${{ steps.metadata.outputs.original_url }}
+          tags: ${{ steps.metadata.outputs.tags }}
+
+      # CREATE DISCUSSION
+      - name: Create Discussion
+        id: discussion
+        uses: ./internal/create-discussion
+        with:
+          title: ${{ steps.metadata.outputs.title }}
+          body: ${{ steps.metadata.outputs.slug }}
+
+      # Uses IDs from discussion + cross-post steps
+      - name: Add Post to Blogmap
+        run: ./../../scripts/create-post-in-blogmap.sh $(cat ./post-properties.json)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - id: metadata
-        run: |
-          cat <<EOF > json.temp
-          ${{ needs.get-properties.outputs.json }}
-          EOF
-          export JSON=$(cat json.temp)
-          echo $JSON
-
-          cat <<EOF > response.json
-          ${{ steps.query_existing_discussion.outputs.data }}
-          EOF
-          export RESPONSEJSON=$(cat response.json)
-
-          export SLUG=$(echo "$JSON" | jq -r '.[].slug')
-          export TITLE=$(echo "$JSON" | jq -r '.[].title')
-          export LOCALID=$(echo "$JSON" | jq -r '.[].discussionId')
-          export LOCALNO=$(echo "$JSON" | jq -r '.[].discussionNo')
-          export REMOTEID=$(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .id')
-          export REMOTENO=$(echo "$RESPONSEJSON" | jq -r '.repository.discussions.nodes | first(.[] | select(.bodyText == "'"$SLUG"'")) | .number')
-          echo "$LOCALID\n$REMOTEID"
-          export DID=$([ "$LOCALID" != "null" ] && echo "$LOCALID" || echo "$REMOTEID")
-          export DNO=$([ "$LOCALNO" != "null" ] && echo "$LOCALNO" || echo "$REMOTENO")
-          export EXISTS=$([ -n "$DID" ] && echo "true" || echo "false")
-          echo "$SLUG\n$TITLE\n$DID\n$DNO\n$EXISTS"
-
-          echo "::set-output name=slug::$SLUG"
-          echo "::set-output name=title::$TITLE"
-          echo "::set-output name=did::$DID"
-          echo "::set-output name=dno::$DNO"
-          echo "::set-output name=exists::$EXISTS"
-
-  create-discussion:
-    name: Create Discussion
-    if: ${{ needs.check-if-discussion-exists.outputs.exists != 'true' }}
-    needs: [get-properties, check-if-discussion-exists]
-    runs-on: ubuntu-latest
-    outputs:
-      did: ${{ steps.get_ids.outputs.did }}
-      dno: ${{ steps.get_ids.outputs.dno }}
-    steps:
-      - uses: octokit/graphql-action@v2.x
-        id: create_discussion
-        with:
-          query: |
-            mutation discussion($repoid:ID!,$categoryid:ID!,$body:String!,$title:String!) {
-              createDiscussion(input: {repositoryId: $repoid, categoryId: $categoryid, body: $body, title: $title}) {
-                discussion {
-                  id
-                  number
-                }
-              }
-            }
-          repoid: ${{ secrets.REPO_ID }}
-          categoryid: ${{ secrets.CATEGORY_ID }}
-          body: ${{ needs.check-if-discussion-exists.outputs.slug }}
-          title: ${{ needs.check-if-discussion-exists.outputs.title }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_ID: ${{ secrets.REPO_ID }}
-          CATEGORY_ID: ${{ secrets.CATEGORY_ID }}
-
-      - id: get_ids
-        run: |
-          cat <<EOF > temp.json
-            ${{ steps.create_discussion.outputs.data }}
-          EOF
-          DID=$(cat temp.json | jq -r .createDiscussion.discussion.id)
-          DNO=$(cat temp.json | jq -r .createDiscussion.discussion.number)
-          echo "::set-output name=did::$DID"
-          echo "::set-output name=dno::$DNO"
-          echo "Created new discussion with ID: $DID, number #$DNO"
-
-  create-post:
-    needs: [get-properties, check-if-discussion-exists, create-discussion]
-    if: always() && needs.get-properties.result == 'success'
-    name: Append New Post to blogmap.json
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Write Properties to post-properties.json
-        run: |
-          cat <<EOF > post-properties.json
-          ${{ needs.get-properties.outputs.json }}
-          EOF
-
-      - id: properties
-        run: |
-          export JSON=$(cat post-properties.json)
-          MEDIUMID=$(echo "$JSON" | jq -r '.[].mediumId')
-          echo "::set-output name=medium-exists::$MEDIUM"
-
-      - uses: infraway/medium-post-markdown@v1.6.0
-        if: ${{ steps.properties.outputs.medium-exists == '' || steps.properties.outputs.medium-exists == 'null' }}
-        id: medium
-        name: Publish Post to Medium
-        with:
-          access_token: ${{ secrets.MEDIUM_ACCESS_TOKEN }}
-          markdown_file: ${{ needs.get-properties.outputs.filename }}
-          base_url: https://nevulo.xyz/blog
-          post_url: https://nevulo.xyz/blog # fix this
-
-      - name: Get Discussion ID (new or existing)
-        run: |
-          NEWDID="${{ needs.create-discussion.outputs.did }}"
-          EXISTINGDID="${{ needs.check-if-discussion-exists.outputs.did }}"
-          export DID=$([ "$NEWDID" ] && echo "$NEWDID" || echo "$EXISTINGDID")
-          NEWDNO="${{ needs.create-discussion.outputs.dno }}"
-          EXISTINGDNO="${{ needs.check-if-discussion-exists.outputs.dno }}"
-          export DNO=$([ "$NEWDNO" ] && echo "$NEWDNO" || echo "$EXISTINGDNO")
-          echo "New discussion ID = $NEWDID\nExisting discussion ID = $EXISTINGDID\nDiscussion ID = $DID"
-          echo "New discussion number = $NEWDNO\nExisting discussion number = $EXISTINGDNO\nDiscussion number = $DNO"
-          [ "$DID" ] || exit 1
-          [ "$DNO" ] || exit 1
-          MEDIUMID=${{ steps.medium.outputs.id }}
-          MEDIUMURL=${{ steps.medium.outputs.url }}
-          echo $(jq --slurpfile post post-properties.json 'del(.[] | select(.slug == $post[][].slug)) | . += [$post[][] + { discussionId: "'"$DID"'", discussionNo: "'"$DNO"'", mediumUrl: "'"$MEDIUMURL"'", mediumId: "'"$MEDIUMID"'" }] | sort_by(.createdAt) | reverse' blogmap.json -c) > blogmap.json
+          DISCUSSION_ID: ${{ steps.discussion.outputs.id }}
+          DISCUSSION_NO: ${{ steps.discussion.outputs.number }}
+          MEDIUM_ID: ${{ steps.cross-post.outputs.medium_id }}
+          MEDIUM_URL: ${{ steps.cross-post.outputs.medium_url }}
+          DEVTO_ID: ${{ steps.cross-post.outputs.devto_id }}
+          DEVTO_URL: ${{ steps.cross-post.outputs.devto_url }}
+          HASHNODE_ID: ${{ steps.cross-post.outputs.hashnode_id }}
+          HASHNODE_URL: ${{ steps.cross-post.outputs.hashnode_url }}
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
@@ -223,61 +84,3 @@ jobs:
           default_author: github_actions
           message: "Update blogmap.json"
           signoff: true
-
-  # publish-post:
-  #   needs: [get-properties, create-post]
-  #   outputs:
-  #     title: ${{ steps.properties.outputs.title }}
-  #     slug: ${{ steps.properties.outputs.slug }}
-  #     description: ${{ steps.properties.outputs.description }}
-  #     twitterStatus: ${{ steps.properties.outputs.twitterStatus }}
-  #   if: always() && needs.create-post.result == 'success'
-  #   name: Cross-post to Other Platforms
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-
-  #     - id: properties
-  #       run: |
-  #         cat <<EOF > json.temp
-  #         ${{ needs.get-properties.outputs.json }}
-  #         EOF
-  #         export JSON=$(cat json.temp)
-  #         SLUG=$(echo "$JSON" | jq -r '.[].slug')
-  #         DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
-  #         URL=https://nevulo.xyz/blog/$SLUG
-  #         echo "::set-output name=url::$URL"
-  #         echo "::set-output name=twitterStatus::`$DESCRIPTION`: $URL"
-  #         echo "::set-output name=slug::$SLUG"
-  #         echo "::set-output name=title::$(echo "$JSON" | jq -r '.[].title')"
-  #         echo "::set-output name=description::$DESCRIPTION"
-
-  #     # - name: Publish Post to dev.to
-  #     #   uses: sinedied/publish-devto@v2
-  #     #   with:
-  #     #     devto_key: ${{ secrets.DEVTO_TOKEN }}
-  #     #     github_token: ${{ secrets.GITHUB_TOKEN }}
-  #     #     files: ${{ needs.get-properties.outputs.filename }}
-
-  #     - uses: bluwy/release-for-reddit-action@v1
-  #       name: Publish to Nevulo Sub-reddit
-  #       with:
-  #         username: ${{ secrets.REDDIT_USERNAME }}
-  #         password: ${{ secrets.REDDIT_PASSWORD }}
-  #         app-id: ${{ secrets.REDDIT_APP_ID }}
-  #         app-secret: ${{ secrets.REDDIT_APP_SECRET }}
-  #         title: ${{ steps.properties.outputs.title }}
-  #         flair-text: Blog Post
-  #         url: ${{ steps.properties.outputs.url }}
-  #         subreddit: Nevulo # Submit to /r/Nevulo
-
-  #     # Send automated tweet
-  #     - uses: ethomson/send-tweet-action@v1
-  #       with:
-  #         status: ${{ steps.properties.outputs.twitterStatus }}
-  #         consumer-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
-  #         consumer-secret: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
-  #         access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-  #         access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
