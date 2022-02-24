@@ -1,1 +1,253 @@
-[{"slug":"getting-started-with-csharp","title":"How to get started with C#","description":"What is C#, what is it used for, and how do you make a basic command line app?","image":"cover.png","createdAt":1644493673000,"location":"posts/getting-started-with-csharp.mdx","difficulty":"Beginner","readTimeMins":8,"author":"Nevulo","labels":["programming","c#","fundamentals"],"discussionId":"D_kwDOFp7UV84AOwVa","discussionNo":"23","mediumUrl":"https://medium.com/@nevulo/e7f4ce48b705","mediumId":"e7f4ce48b705"},{"slug":"snake-in-python","title":"Making Snake in Python","description":"How to create a basic 2D game using Python and pygame, explaining everything along the way","image":"cover.jpeg","createdAt":1644491547000,"location":"posts/snake-in-python.mdx","difficulty":"Beginner","readTimeMins":15,"coverAuthor":"Katy Wilkens","coverAuthorUrl":"https://unsplash.com/@kateivoryphotoworks","author":"Nevulo","labels":["programming","python","game"],"discussionId":"D_kwDOFp7UV84AOwUR","discussionNo":"22","mediumUrl":"https://medium.com/@nevulo/1fa17a143d3","mediumId":"1fa17a143d3"},{"slug":"how-to-set-up-firebase","title":"How to set up Firebase in your JavaScript app","description":"What is Firebase, what does it offer for your website and how can you use it?","image":"cover.png","createdAt":1644317093001,"location":"posts/how-to-set-up-firebase.mdx","difficulty":"Intermediate","readTimeMins":4,"author":"Nevulo","labels":["programming","javascript","integrations"],"discussionId":"D_kwDOFp7UV84AOvFC","discussionNo":"21","mediumUrl":"https://medium.com/@nevulo/9aff641ef229","mediumId":"9aff641ef229"},{"slug":"nevuletter","title":"What is the Nevuletter and how does it work?","description":"Explaining why I started a newsletter, what you get from subscribing and how it works behind the scenes","image":"cover.png","createdAt":1643191497000,"location":"posts/nevuletter.mdx","readTimeMins":3,"author":"Nevulo","labels":["meta","nevuletter","integrations"],"discussionId":"D_kwDOFp7UV84AOoN8","discussionNo":"20","mediumUrl":"","mediumId":""},{"slug":"what-are-data-types","title":"What are data types?","description":"Understand what different data types mean and how to use them","image":"cover.jpeg","createdAt":1643191130001,"location":"posts/what-are-data-types.mdx","difficulty":"Beginner","readTimeMins":5,"coverAuthor":"Amador Loureiro","coverAuthorUrl":"https://unsplash.com/@amadorloureiro","author":"Nevulo","labels":["programming","fundamentals"],"discussionId":"D_kwDOFp7UV84AOoN2","discussionNo":"19","mediumUrl":"","mediumId":""},{"slug":"git-rebase","title":"Rebasing in Git","description":"What does it mean to rebase in Git, and how do you do it?","image":"cover.png","createdAt":1635250336911,"location":"posts/git-rebase.mdx","readTimeMins":7,"difficulty":"Beginner","author":"Nevulo","keyIdeas":["Rebasing means recreating local commits that you have on a branch to appear after remote changes","Even if the remote changes happened after your local commits and you pull them in, Git will \"replay\" your commits on top of the current branch"],"labels":["git","cli","rebase"],"discussionId":"D_kwDOFp7UV84AN7KO","discussionNo":"18","mediumUrl":"","mediumId":""},{"slug":"how-to-read-and-troubleshoot-typescript-errors","title":"How to read & troubleshoot TypeScript errors","description":"Understand some common errors and what they mean instead of pulling your hair out","image":"cover.png","createdAt":1631624754880,"location":"posts/how-to-read-and-troubleshoot-typescript-errors.mdx","readTimeMins":8,"difficulty":"Advanced","author":"Nevulo","labels":["programming","typescript","troubleshooting","errors"],"discussionId":"D_kwDOFp7UV84ANyfg","discussionNo":"15","mediumUrl":"","mediumId":""},{"slug":"why-and-how-i-built-the-blog","title":"Why and how I built the blog","description":"What I want to achieve with the blog, and how it works behind the scenes","image":"cover.jpeg","createdAt":1630419299031,"location":"posts/why-and-how-i-built-the-blog.mdx","readTimeMins":3,"coverAuthor":"Clay Banks","coverAuthorUrl":"https://unsplash.com/@claybanks","author":"Nevulo","labels":["meta","integrations"],"discussionId":"D_kwDOFp7UV84ANuNI","discussionNo":"11","mediumUrl":"","mediumId":""},{"slug":"avoid-indentation-hell-with-early-returns","title":"Avoid indentation hell with early returns","description":"There's a better way to structure your conditional logic","image":"cover.jpeg","createdAt":1629207399001,"location":"posts/avoid-indentation-hell-with-early-returns.mdx","readTimeMins":4,"difficulty":"Beginner","author":"Nevulo","keyIdeas":["Make your code more readable and understandable by returning from your function as early as possible","Rather than have nested statements, returning early means all logic below the return will only be executed if the condition passes, making things simpler"],"labels":["programming","code-quality"],"discussionId":"D_kwDOFp7UV84ANyfm","discussionNo":"16","mediumUrl":"","mediumId":""},{"slug":"numbers-in-javascript","title":"Numbers in JavaScript","description":"Simple, innocuous methods which will trip you up when working with numbers in JavaScript","image":"cover.jpeg","createdAt":1627826463001,"location":"posts/numbers-in-javascript.mdx","difficulty":"Intermediate","readTimeMins":5,"coverAuthor":"Nick Hillier","coverAuthorUrl":"https://unsplash.com/@nhillier","author":"Nevulo","labels":["programming","javascript"],"discussionId":"D_kwDOFp7UV84ANyfm","discussionNo":"16","mediumUrl":"","mediumId":""}]
+[
+  {
+		"slug": "making-your-own-website",
+		"title": "Making your own website from scratch",
+		"description": "An introduction to HTML and CSS - the foundation and styling for any website",
+		"image": "cover.jpg",
+		"createdAt": 1645742781000,
+		"location": "posts/making-your-own-website.mdx",
+		"difficulty": "Beginner",
+		"readTimeMins": 8,
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"html",
+			"css"
+		],
+		"discussionId": "D_kwDOFp7UV84AOwVa",
+		"discussionNo": "23",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+  {
+		"slug": "web-frameworks",
+		"title": "What's a web framework?",
+		"description": "Understanding what a web framework does and how it helps you build more dynamic websites",
+		"image": "cover.jpg",
+		"createdAt": 1645742929000,
+		"location": "posts/web-frameworks.mdx",
+		"difficulty": "Intermediate",
+		"readTimeMins": 5,
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"javascript",
+			"html"
+		],
+		"discussionId": "D_kwDOFp7UV84AOwVa",
+		"discussionNo": "23",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "getting-started-with-csharp",
+		"title": "How to get started with C#",
+		"description": "What is C#, what is it used for, and how do you make a basic command line app?",
+		"image": "cover.png",
+		"createdAt": 1644493673000,
+		"location": "posts/getting-started-with-csharp.mdx",
+		"difficulty": "Beginner",
+		"readTimeMins": 8,
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"c#",
+			"fundamentals"
+		],
+		"discussionId": "D_kwDOFp7UV84AOwVa",
+		"discussionNo": "23",
+		"mediumUrl": "https://medium.com/@nevulo/e7f4ce48b705",
+		"mediumId": "e7f4ce48b705"
+	},
+	{
+		"slug": "snake-in-python",
+		"title": "Making Snake in Python",
+		"description": "How to create a basic 2D game using Python and pygame, explaining everything along the way",
+		"image": "cover.jpeg",
+		"createdAt": 1644491547000,
+		"location": "posts/snake-in-python.mdx",
+		"difficulty": "Beginner",
+		"readTimeMins": 15,
+		"coverAuthor": "Katy Wilkens",
+		"coverAuthorUrl": "https://unsplash.com/@kateivoryphotoworks",
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"python",
+			"game"
+		],
+		"discussionId": "D_kwDOFp7UV84AOwUR",
+		"discussionNo": "22",
+		"mediumUrl": "https://medium.com/@nevulo/1fa17a143d3",
+		"mediumId": "1fa17a143d3"
+	},
+	{
+		"slug": "how-to-set-up-firebase",
+		"title": "How to set up Firebase in your JavaScript app",
+		"description": "What is Firebase, what does it offer for your website and how can you use it?",
+		"image": "cover.png",
+		"createdAt": 1644317093001,
+		"location": "posts/how-to-set-up-firebase.mdx",
+		"difficulty": "Intermediate",
+		"readTimeMins": 4,
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"javascript",
+			"integrations"
+		],
+		"discussionId": "D_kwDOFp7UV84AOvFC",
+		"discussionNo": "21",
+		"mediumUrl": "https://medium.com/@nevulo/9aff641ef229",
+		"mediumId": "9aff641ef229"
+	},
+	{
+		"slug": "nevuletter",
+		"title": "What is the Nevuletter and how does it work?",
+		"description": "Explaining why I started a newsletter, what you get from subscribing and how it works behind the scenes",
+		"image": "cover.png",
+		"createdAt": 1643191497000,
+		"location": "posts/nevuletter.mdx",
+		"readTimeMins": 3,
+		"author": "Nevulo",
+		"labels": [
+			"meta",
+			"nevuletter",
+			"integrations"
+		],
+		"discussionId": "D_kwDOFp7UV84AOoN8",
+		"discussionNo": "20",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "what-are-data-types",
+		"title": "What are data types?",
+		"description": "Understand what different data types mean and how to use them",
+		"image": "cover.jpeg",
+		"createdAt": 1643191130001,
+		"location": "posts/what-are-data-types.mdx",
+		"difficulty": "Beginner",
+		"readTimeMins": 5,
+		"coverAuthor": "Amador Loureiro",
+		"coverAuthorUrl": "https://unsplash.com/@amadorloureiro",
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"fundamentals"
+		],
+		"discussionId": "D_kwDOFp7UV84AOoN2",
+		"discussionNo": "19",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "git-rebase",
+		"title": "Rebasing in Git",
+		"description": "What does it mean to rebase in Git, and how do you do it?",
+		"image": "cover.png",
+		"createdAt": 1635250336911,
+		"location": "posts/git-rebase.mdx",
+		"readTimeMins": 7,
+		"difficulty": "Beginner",
+		"author": "Nevulo",
+		"keyIdeas": [
+			"Rebasing means recreating local commits that you have on a branch to appear after remote changes",
+			"Even if the remote changes happened after your local commits and you pull them in, Git will \"replay\" your commits on top of the current branch"
+		],
+		"labels": [
+			"git",
+			"cli",
+			"rebase"
+		],
+		"discussionId": "D_kwDOFp7UV84AN7KO",
+		"discussionNo": "18",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "how-to-read-and-troubleshoot-typescript-errors",
+		"title": "How to read & troubleshoot TypeScript errors",
+		"description": "Understand some common errors and what they mean instead of pulling your hair out",
+		"image": "cover.png",
+		"createdAt": 1631624754880,
+		"location": "posts/how-to-read-and-troubleshoot-typescript-errors.mdx",
+		"readTimeMins": 8,
+		"difficulty": "Advanced",
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"typescript",
+			"troubleshooting",
+			"errors"
+		],
+		"discussionId": "D_kwDOFp7UV84ANyfg",
+		"discussionNo": "15",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "why-and-how-i-built-the-blog",
+		"title": "Why and how I built the blog",
+		"description": "What I want to achieve with the blog, and how it works behind the scenes",
+		"image": "cover.jpeg",
+		"createdAt": 1630419299031,
+		"location": "posts/why-and-how-i-built-the-blog.mdx",
+		"readTimeMins": 3,
+		"coverAuthor": "Clay Banks",
+		"coverAuthorUrl": "https://unsplash.com/@claybanks",
+		"author": "Nevulo",
+		"labels": [
+			"meta",
+			"integrations"
+		],
+		"discussionId": "D_kwDOFp7UV84ANuNI",
+		"discussionNo": "11",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "avoid-indentation-hell-with-early-returns",
+		"title": "Avoid indentation hell with early returns",
+		"description": "There's a better way to structure your conditional logic",
+		"image": "cover.jpeg",
+		"createdAt": 1629207399001,
+		"location": "posts/avoid-indentation-hell-with-early-returns.mdx",
+		"readTimeMins": 4,
+		"difficulty": "Beginner",
+		"author": "Nevulo",
+		"keyIdeas": [
+			"Make your code more readable and understandable by returning from your function as early as possible",
+			"Rather than have nested statements, returning early means all logic below the return will only be executed if the condition passes, making things simpler"
+		],
+		"labels": [
+			"programming",
+			"code-quality"
+		],
+		"discussionId": "D_kwDOFp7UV84ANyfm",
+		"discussionNo": "16",
+		"mediumUrl": "",
+		"mediumId": ""
+	},
+	{
+		"slug": "numbers-in-javascript",
+		"title": "Numbers in JavaScript",
+		"description": "Simple, innocuous methods which will trip you up when working with numbers in JavaScript",
+		"image": "cover.jpeg",
+		"createdAt": 1627826463001,
+		"location": "posts/numbers-in-javascript.mdx",
+		"difficulty": "Intermediate",
+		"readTimeMins": 5,
+		"coverAuthor": "Nick Hillier",
+		"coverAuthorUrl": "https://unsplash.com/@nhillier",
+		"author": "Nevulo",
+		"labels": [
+			"programming",
+			"javascript"
+		],
+		"discussionId": "D_kwDOFp7UV84ANyfm",
+		"discussionNo": "16",
+		"mediumUrl": "",
+		"mediumId": ""
+	}
+]
