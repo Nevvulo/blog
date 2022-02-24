@@ -27,7 +27,7 @@ jobs:
       # GET METADATA
       - name: Get Metadata for Post
         id: metadata
-        uses: ./internal/get-metadata
+        uses: ./.github/workflows/internal/get-metadata
         with:
           # TODO: currently only supports one file
           file: ${{ steps.changed-files.outputs.added-files }}
@@ -35,7 +35,7 @@ jobs:
       # CROSS-POST TO OTHER PLATFORMS
       - name: Cross-post to Other Platforms
         id: cross-post
-        uses: ./internal/cross-post-externally
+        uses: ./.github/workflows/internal/cross-post-externally
         with:
           file: ${{ steps.changed-files.outputs.added-files }}
           slug: ${{ steps.metadata.outputs.slug }}
@@ -49,14 +49,14 @@ jobs:
       # CREATE DISCUSSION
       - name: Create Discussion
         id: discussion
-        uses: ./internal/create-discussion
+        uses: ./.github/workflows/internal/create-discussion
         with:
           title: ${{ steps.metadata.outputs.title }}
           body: ${{ steps.metadata.outputs.slug }}
 
       # Uses IDs from discussion + cross-post steps
       - name: Add Post to Blogmap
-        run: ./../../scripts/create-post-in-blogmap.sh $(cat ./post-properties.json)
+        run: ./scripts/create-post-in-blogmap.sh $(cat ./post-properties.json)
         env:
           DISCUSSION_ID: ${{ steps.discussion.outputs.id }}
           DISCUSSION_NO: ${{ steps.discussion.outputs.number }}
