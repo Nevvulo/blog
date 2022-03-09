@@ -1,0 +1,19 @@
+name: 'Transform Contents for External Platforms'
+description: 'Transforms content as necessary to post externally'
+author: 'Nevulo'
+inputs:
+  contents:
+    required: true
+    description: 'Contents of the post'
+
+outputs:
+  hashnode:
+    description: 'Final content for Hashnode'
+  medium:
+    description: 'Final content for Medium'
+  devto:
+    description: 'Final content for dev.to'
+
+runs:
+  using: 'node16'
+  main: 'index.js'

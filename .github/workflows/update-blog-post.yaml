@@ -4,7 +4,7 @@ on:
     branches:
       - "main"
     paths:
-      - "posts/**"
+      - "posts/*"
 jobs:
   setup:
     if: ${{ contains(github.event.commits[0].message, '[U]') }}
@@ -15,37 +15,36 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get specific changed files
+      - name: Get Changed Files
         id: changed-files
         uses: tj-actions/changed-files@v1.0.0
         with:
-          files: posts
+          files: |
+            posts/*.md
+            posts/*.mdx
           separator: " "
 
-      - name: Read Post Properties and Write to File
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
-            ./scripts/extract-blog-properties.sh $file
-          done
-
-      # Converts the post-properties.yml file created from the previous step
-      # to JSON to be written into blogmap.json
-      - name: Convert Post Properties to JSON
-        uses: fabasoad/yaml-json-xml-converter-action@main
-        id: yaml2json
+      # GET METADATA
+      - name: Get Metadata for Post
+        id: metadata
+        uses: ./.github/workflows/internal/get-metadata
         with:
-          path: post-properties.yml
-          from: "yaml"
-          to: "json"
+          # TODO: currently only supports one file
+          file: ${{ steps.changed-files.outputs.added-files }}
 
-      - name: Write JSON Properties to File
-        run: |
-          cat <<EOF > post-properties.json
-          ${{ steps.yaml2json.outputs.data }}
-          EOF
+      - name: Read blogmap.json
+        id: blogmap
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./blogmap.json
 
-      - name: Update Post in blogmap.json
-        run: ./scripts/update-post-in-blogmap.sh "$(cat ./post-properties.json)"
+      - name: Update Post Properties
+        id: post-properties
+        uses: Nevvulo/upsert-json@1.0.0
+        with:
+          source_json: ${{ steps.blogmap.outputs.content }}
+          input_json: ${{ steps.metadata.outputs.json }}
+          filter_property: slug
 
       # Validates that blogmap.json was written with the correct contents
       - name: Validate File Size
@@ -56,6 +55,25 @@ jobs:
         env:
           INPUT_SCHEMA: ./schema.json
           INPUT_JSONS: ./blogmap.json
+
+      # TODO: does not support medium
+      - name: Propagate Update to External Platforms
+        id: cross-post
+        if: ${{ steps.metadata.outputs.devtoid && steps.metadata.outputs.hashnodeid }}
+        uses: ./.github/workflows/internal/update-cross-posts
+        with:
+          devto_id: ${{ steps.metadata.outputs.devtoid }}
+          hashnode_id: ${{ steps.metadata.outputs.hashnodeid }}
+          file: ${{ steps.changed-files.outputs.added-files }}
+          slug: ${{ steps.metadata.outputs.slug }}
+          title: ${{ steps.metadata.outputs.title }}
+          body: ${{ steps.metadata.outputs.body }}
+          devto_body: ${{ steps.transform.outputs.devto }}
+          hashnode_body: ${{ steps.transform.outputs.hashnode }}
+          description: ${{ steps.metadata.outputs.description }}
+          image: ${{ steps.metadata.outputs.image }}
+          original_url: ${{ steps.metadata.outputs.original_url }}
+          tags: ${{ steps.metadata.outputs.tags }}
 
       - name: Commit Changes
         uses: EndBug/add-and-commit@v7

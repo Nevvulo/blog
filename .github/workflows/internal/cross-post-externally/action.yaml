@@ -1,0 +1,99 @@
+name: Cross-post to External Platforms
+description: Posts to external platforms like dev.to, Hashnode
+inputs:
+  file:
+    required: true
+    description: Filename
+  slug:
+    required: true
+    description: Internal ID
+  title:
+    required: true
+    description: Title
+  devto_body:
+    required: true
+    description: Body for dev.to Post
+  hashnode_body:
+    required: true
+    description: Body for Hashnode post
+  medium_body:
+    required: true
+    description: Body for Medium post
+  body:
+    required: true
+    description: Body for post
+  description:
+    required: true
+    description: Description
+  image:
+    required: true
+    description: Featured image
+  original_url:
+    required: true
+    description: Canonical URL
+  tags:
+    required: true
+    description: Tags for post
+
+# Map the workflow outputs to job outputs
+outputs:
+  medium_id:
+    description: Medium ID
+    value: ${{ steps.medium.outputs.id }}
+  medium_url:
+    description: Medium URL
+    value: ${{ steps.medium.outputs.url }}
+  devto_id:
+    description: dev.to ID
+    value: ${{ steps.devto.outputs.id }}
+  devto_url:
+    description: dev.to ID
+    value: ${{ steps.devto.outputs.url }}
+  hashnode_id:
+    description: Hashnode ID
+    value: ${{ steps.hashnode.outputs.id }}
+  hashnode_url:
+    description: Hashnode ID
+    value: ${{ steps.hashnode.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Publish to Hashnode
+      uses: Nevvulo/hashnode-publisher@main
+      id: hashnode
+      # TOOD: needs tags
+      with:
+        api_key: ${{ secrets.HASHNODE_TOKEN }}
+        publication_id: 6207ce33d59187113c4c098a
+        title: ${{ inputs.title }}
+        body: ${{ inputs.hashnode_body }}
+        main_image: ${{ inputs.image }}
+        original_url: ${{ inputs.original_url }}
+
+    - name: Publish to Dev.to
+      uses: Nevvulo/dev-to-publisher@main
+      id: devto
+      with:
+        api_key: ${{ secrets.DEVTO_TOKEN }}
+        title: ${{ inputs.title }}
+        description: ${{ inputs.description }}
+        body: ${{ inputs.devto_body }}
+        main_image: ${{ inputs.image }}
+        original_url: ${{ inputs.original_url }}
+        tags: ${{ inputs.tags }}
+
+    - uses: DamianReeves/write-file-action
+      with:
+        path: ./medium.md
+        contents: ${{ inputs.medium_body }}
+
+    - name: Publish to Medium
+      uses: infraway/medium-post-markdown@v1.6.0
+      id: medium
+      with:
+        access_token: ${{ secrets.MEDIUM_ACCESS_TOKEN }}
+        markdown_file: ./medium.md
+        post_url: https://nevulo.xyz/blog
+
+    

@@ -1,0 +1,112 @@
+name: Get Metadata
+description: Gets metadata from the raw post contents
+
+inputs:
+  file:
+    required: true
+    description: Filename
+
+# Map the workflow outputs to job outputs
+outputs:
+  json:
+    description: Raw JSON
+    value: ${{ steps.export.outputs.json }}
+  contents:
+    description: Contents
+    value: ${{ steps.read-file.outputs.contents }}
+  slug:
+    description: Internal ID
+    value: ${{ steps.export.outputs.slug }}
+  title:
+    description: Title
+    value: ${{ steps.export.outputs.title }}
+  body:
+    description: Body for post
+    value: ${{ steps.export.outputs.body }}
+  description: 
+    description: Description
+    value: ${{ steps.export.outputs.description }}
+  image: 
+    description: Featured image
+    value: ${{ steps.export.outputs.image }}
+  original_url:
+    description: Canonical URL
+    value: ${{ steps.export.outputs.original_url }}
+  tags:
+    description: Tags for post
+    value: ${{ steps.export.outputs.tags }}
+  mediumid:
+    description: Medium ID
+    value: ${{ steps.export.outputs.mediumid }}
+  mediumurl:
+    description: Medium URL
+    value: ${{ steps.export.outputs.mediumurl }}
+  devtoid:
+    description: dev.to ID
+    value: ${{ steps.export.outputs.devtoid }}
+  devtourl:
+    description: dev.to URL
+    value: ${{ steps.export.outputs.devtourl }}
+  hashnodeid:
+    description: Hashnode ID
+    value: ${{ steps.export.outputs.hashnodeid }}
+  hashnodeurl:
+    description: Hashnode URL
+    value: ${{ steps.export.outputs.hashnodeurl }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v2
+
+    - name: Read Post Properties and Write to File
+      id: read-file
+      shell: bash
+      run: |
+        echo "::set-output name=contents::`cat ${{ inputs.file }}`"
+        ./scripts/extract-blog-properties.sh ${{ inputs.file }}
+
+    # Converts the post-properties.yml file created from the previous step
+    # to JSON to be written into blogmap.json
+    - name: Convert YAML File to JSON
+      id: yq
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq e -c -j post-properties.yaml
+
+    - name: Export Properties
+      shell: bash
+      id: export
+      run: |
+        cat <<EOF > post-properties.json
+        ${{ steps.yq.outputs.result }}
+        EOF
+        export JSON=$(echo `cat post-properties.json`)
+        export OUTPUT=$(echo "$JSON" | jq -r '.[]')
+        export SLUG=$(echo "$JSON" | jq -r '.[].slug')
+        export TITLE=$(echo "$JSON" | jq -r '.[].title')
+        export BODY=$(echo "$JSON" | jq -r '.[].body')
+        export DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
+        export IMAGE=$(echo "$JSON" | jq -r '.[].image')
+        export ORIGINAL_URL=https://nevulo.xyz/blog/$(echo "$JSON" | jq -r '.[].slug')
+        export TAGS=$(echo "$JSON" | jq -r '.[].tags')
+        export MEDIUM_ID=$(echo "$JSON" | jq -r '.[].mediumId')
+        export MEDIUM_URL=$(echo "$JSON" | jq -r '.[].mediumUrl')
+        export DEVTO_ID=$(echo "$JSON" | jq -r '.[].devToId')
+        export DEVTO_URL=$(echo "$JSON" | jq -r '.[].devToUrl')
+        export HASHNODE_ID=$(echo "$JSON" | jq -r '.[].hashnodeId')
+        export HASHNODE_URL=$(echo "$JSON" | jq -r '.[].hashnodeUrl')
+        echo "::set-output name=json::$OUTPUT"
+        echo "::set-output name=slug::$SLUG"
+        echo "::set-output name=title::$TITLE"
+        echo "::set-output name=body::$BODY"
+        echo "::set-output name=description::$DESCRIPTION"
+        echo "::set-output name=image::$IMAGE"
+        echo "::set-output name=original_url::$ORIGINAL_URL"
+        echo "::set-output name=tags::$TAGS"
+        echo "::set-output name=mediumid::$MEDIUM_ID"
+        echo "::set-output name=mediumurl::$MEDIUM_URL"
+        echo "::set-output name=devtoid::$DEVTO_ID"
+        echo "::set-output name=devtourl::$DEVTO_URL"
+        echo "::set-output name=hashnodeid::$HASHNODE_ID"
+        echo "::set-output name=hashnodeurl::$HASHNODE_URL"
