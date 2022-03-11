@@ -1,6 +1,15 @@
 name: Create Discussion
 description: 'Creates a discussion if it does not exist'
 inputs:
+  repo_id:
+    required: true
+    description: 'The ID of the repository'
+  category_id:
+    required: true
+    description: 'The ID of the category to post discussion to'
+  github_token:
+    required: true
+    description: 'GitHub token'
   title:
     required: true
     description: 'The title for the discussion'
@@ -12,10 +21,10 @@ inputs:
 outputs:
   id:
     description: "The ID of the existing discussion"
-    value: ${{ jobs.create-discussion.outputs.id }}
+    value: ${{ steps.get_ids.outputs.id }}
   number:
     description: "The public facing number of the existing discussion"
-    value: ${{ jobs.create-discussion.outputs.number }}
+    value: ${{ steps.get_ids.outputs.number }}
 
 runs:
   using: composite
@@ -32,14 +41,14 @@ runs:
               }
             }
           }
-        repoid: ${{ secrets.REPO_ID }}
-        categoryid: ${{ secrets.CATEGORY_ID }}
+        repoid: ${{ inputs.repo_id }}
+        categoryid: ${{ inputs.category_id }}
         body: ${{ inputs.body }}
         title: ${{ inputs.title }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        REPO_ID: ${{ secrets.REPO_ID }}
-        CATEGORY_ID: ${{ secrets.CATEGORY_ID }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        REPO_ID: ${{ inputs.repo_id }}
+        CATEGORY_ID: ${{ inputs.category_id }}
 
     - id: get_ids
       run: |

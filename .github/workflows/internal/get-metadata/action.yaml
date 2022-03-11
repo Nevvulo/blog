@@ -20,9 +20,6 @@ outputs:
   title:
     description: Title
     value: ${{ steps.export.outputs.title }}
-  body:
-    description: Body for post
-    value: ${{ steps.export.outputs.body }}
   description: 
     description: Description
     value: ${{ steps.export.outputs.description }}
@@ -63,7 +60,11 @@ runs:
       id: read-file
       shell: bash
       run: |
-        echo "::set-output name=contents::`cat ${{ inputs.file }}`"
+        content=`cat ${{ inputs.file }}`
+        content="${content//'%'/'%25'}"
+        content="${content//$'\n'/'%0A'}"
+        content="${content//$'\r'/'%0D'}"
+        echo "::set-output name=contents::$content"
         ./scripts/extract-blog-properties.sh ${{ inputs.file }}
 
     # Converts the post-properties.yml file created from the previous step
@@ -72,7 +73,7 @@ runs:
       id: yq
       uses: mikefarah/yq@master
       with:
-        cmd: yq e -c -j post-properties.yaml
+        cmd: yq e '.. style="flow"' post-properties.yml -o j
 
     - name: Export Properties
       shell: bash
@@ -82,14 +83,13 @@ runs:
         ${{ steps.yq.outputs.result }}
         EOF
         export JSON=$(echo `cat post-properties.json`)
-        export OUTPUT=$(echo "$JSON" | jq -r '.[]')
+        export OUTPUT=$(echo "$JSON" | jq -c '.[]')
         export SLUG=$(echo "$JSON" | jq -r '.[].slug')
         export TITLE=$(echo "$JSON" | jq -r '.[].title')
-        export BODY=$(echo "$JSON" | jq -r '.[].body')
         export DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
         export IMAGE=$(echo "$JSON" | jq -r '.[].image')
         export ORIGINAL_URL=https://nevulo.xyz/blog/$(echo "$JSON" | jq -r '.[].slug')
-        export TAGS=$(echo "$JSON" | jq -r '.[].tags')
+        export TAGS=$(echo "$JSON" | jq -r '.[].labels')
         export MEDIUM_ID=$(echo "$JSON" | jq -r '.[].mediumId')
         export MEDIUM_URL=$(echo "$JSON" | jq -r '.[].mediumUrl')
         export DEVTO_ID=$(echo "$JSON" | jq -r '.[].devToId')
@@ -99,7 +99,6 @@ runs:
         echo "::set-output name=json::$OUTPUT"
         echo "::set-output name=slug::$SLUG"
         echo "::set-output name=title::$TITLE"
-        echo "::set-output name=body::$BODY"
         echo "::set-output name=description::$DESCRIPTION"
         echo "::set-output name=image::$IMAGE"
         echo "::set-output name=original_url::$ORIGINAL_URL"

@@ -19,9 +19,15 @@ inputs:
   devto_body:
     required: true
     description: Body for dev.to Post
+  devto_token:
+    required: true
+    description: Token for dev.to post
   hashnode_body:
     required: true
     description: Body for Hashnode post
+  hashnode_token:
+    required: true
+    description: Token for Hashnode post
   # medium_body:
   #   required: true
   #   description: Body for Medium post
@@ -71,7 +77,7 @@ runs:
       # TODO: needs tags
       with:
         id: {{ inputs.hashnodeid }}
-        api_key: ${{ secrets.HASHNODE_TOKEN }}
+        api_key: ${{ inputs.hashnode_token }}
         publication_id: 6207ce33d59187113c4c098a
         title: ${{ inputs.title }}
         body: ${{ inputs.hashnode_body }}
@@ -83,7 +89,7 @@ runs:
       id: devto
       with:
         id: {{ inputs.devtoid }}
-        api_key: ${{ secrets.DEVTO_TOKEN }}
+        api_key: ${{ inputs.devto_token }}
         title: ${{ inputs.title }}
         description: ${{ inputs.description }}
         body: ${{ inputs.devto_body }}
