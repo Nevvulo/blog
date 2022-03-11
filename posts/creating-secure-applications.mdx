@@ -1,0 +1,125 @@
+# How can you create more secure applications?
+
+Security is the hidden heart and soul of any great application. It’s something we all take for granted, ensuring things remain as secure as possible to make sure everything runs as it _should_.
+
+But, what does it mean for an application to be “secure”? How can we improve security in our applications to protect valuable assets, including users?
+
+## What do we mean by “secure” applications?
+
+Information security boils down to three basic principles:
+
+### Confidentiality
+
+Ensuring only **authorised access** to an asset, prohibiting access to others. Prevents unauthorised disclosure.
+
+### Integrity
+
+There should be **no unauthorised modification** of data.
+
+### Availability
+
+Authorised users have **timely, reliable access to resources** when needed.
+
+This is referred to as the “CIA Triad” and these three core goals should be the basis for any security program.
+
+## Prevention is better than the cure
+
+I think it’s worth spending some time talking about why we care about security in the first place.
+
+There’s obviously a time and place to get serious about security, and I don’t recommend diving head first into it if you’re very new to programming.
+
+But, if you’re making an application that is public and has the potential to be used by thousands, it’s too easy to get complacent, especially if you’re just starting out and think there’s no reason to implement security.
+
+Even if your application only has 10 users, even if it’s not well known, and you think there’s no way anyone could possibly exploit it:
+
+**If you have a vulnerability in your application, there is increased risk, both for you and your users.**
+
+Think of it like a ticking time-bomb, but no matter what, you have no idea what the time on the bomb is. The more risk you have, the more unstable the bomb gets.
+
+## You’re at risk, whether you like it or not
+
+_Every single application_ has some security flaws (known or not), and you can **never guarantee** that an application is 100% secured.
+
+Think like you’re under attack all the time because usually, you are.
+
+As a personal example; I’ve been running my website on my server for over 3 years now, and during that time, I’ve had countless bots connect to my server attempting to exploit some threat which doesn’t exist for my site.
+
+Even though typically these spam requests get sent out in batches to random IPs across the entire Internet just to see if they can exploit a vulnerability, it still presents a serious risk if you don’t put security at the forefront of what you’re doing.
+
+You should always be vigilant and expect attacks. No matter where or how you run your application, you should have the mindset that there’s always threats lurking because realistically, there are.
+
+Never be complacent with security because ultimately, your users will take the biggest hit. Often times, it’s not about “if”, but “when”, given enough time.
+
+## Best practices for making your applications more secure
+
+### Test & attempt to break your code
+
+Testing your logic under different scenarios (particularly ones it wasn’t made for) is a great way to ensure there are no obvious vulnerabilities in your application.
+
+Even better; endeavor to get someone _external_ to do [penetration testing](https://www.imperva.com/learn/application-security/penetration-testing/) on your application, intentionally attempting to breach systems (with permission) to uncover vulnerabilities.
+
+Here’s [a great tweet](https://twitter.com/brenankeller/status/1068615953989087232?lang=en)demonstrating this:
+
+> A QA engineer walks into a bar. Orders a beer. Orders 0 beers. Orders 99999999999 beers. Orders a lizard. Orders -1 beers. Orders a ueicbksjdhd.
+
+> First real customer walks in and asks where the bathroom is. The bar bursts into flames, killing everyone.
+
+The idea is that users are unpredictable, and if you’ve created some input for the user, you should attempt to test values that you _know_ will cause problems or create edge cases.
+
+This is where good **validation** on the frontend and backend come in, ensuring that the input we _expect_ to receive is what we actually get.
+
+### Avoid security through obscurity, implement security by **design**
+
+[Security through obscurity](https://danielmiessler.com/blog/dead-drops-and-security-through-obscurity/) is the idea that a system can be secure solely by keeping the details about how it was created secret (besides the creators).
+
+Security by design is about embedding security as you’re planning new features or fixes and building in risk assessment and mitigation as you go, instead of implementing security as an afterthought.
+
+The [National Institute of Standards and Technology](https://en.wikipedia.org/wiki/National_Institute_of_Standards_and_Technology) in the US generally recommends that “system security **should not depend** on the _secrecy of the implementation_ or its components”.
+
+Think about it like this – in a house, the front door is the main security control, preventing people from just coming in as they please. If you’re the owner of the house, you likely have the keys to the door on your person, making you part of the security system.
+
+This is a secure system because even if somebody knows that _you_ possess the key, they probably don’t know where exactly you are, and they’d need to use brute force to get the key from you.
+
+On the other hand, if you store the key under your doormat, this is not a secure system. If you somehow figured out that there is a key under the doormat, the entire system is compromised, and that newly found key can be used straight away to break into the house (or a system).
+
+Implementing security by design usually means that everyone is allowed to know and understand the design because it is secure.
+
+### Keep things within your control, never trust user input
+
+For example, if you have a comments section where people can post a comment, it may be dangerous just to echo back what the user said.
+
+As an example, attackers may be able to abuse a vulnerability called [cross-site scripting](https://nevulo.xyz/blog/what-is-xss), which allows them to literally inject their code to be executed on the page.
+
+This is dangerous because the injected code runs under the same context as the real code on the website (meaning, for the computer running the code, there’s no distinction between _your injected code_ and the real website code). This could be anything from showing an annoying pop-up to stealing user records and personal information.
+
+### Principle of least privilege
+
+Principle of least privilege focuses on giving users the _exact_ amount of _permissions_ they need to perform the tasks they need to do - no more, no less.
+
+You should only elevate privileges for applications or users based on situations and when the time is right. Typically, users start with the lowest possible set of permissions, but gradually gain permissions over time as needed.
+
+This is a basic measure to ensure internal employees or normal users of an application can’t
+
+### Don’t expose too much information
+
+Attackers rely on information gathered about how your application works, and the less information they have, it makes it harder to perform an attack
+
+For example, telling the user if they got their password wrong in a login form. To protect other users, we should just say “login failed” without exposing whether or not the email address or password specifically was wrong.
+
+Any piece of information, however small, may assist attackers, speed up the process or give attackers more incentive to keep attempting to compromise details.
+
+<!--[PROPERTIES]
+- slug: 'creating-secure-applications'
+  title: 'How can you create more secure applications?'
+  description: "Security is the hidden heart and soul of any great application. How can you incorporate security by design to protect your application and your users?"
+  image: cover.jpg
+  createdAt: 1646959431000
+  location: 'posts/creating-secure-applications.mdx'
+  readTimeMins: 5
+  coverAuthor: FLY:D
+  coverAuthorUrl: https://unsplash.com/@flyd2069
+  author: Nevulo
+  labels:
+    - programming
+    - security
+-->
