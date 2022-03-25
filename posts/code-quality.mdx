@@ -1,0 +1,160 @@
+# What is code quality, and how do you improve it?
+
+When reviewers or other people are reading your code, something they’ll inherently feel is the _quality_ of your code.
+
+“Good” quality code can be understood easily, reasoned with, while remaining neat.
+“Bad” quality code can often be hard to read, difficult to understand, and can result in bad performance or bugs, affecting end users.
+
+## What do we mean by “quality” code?
+
+Defining “quality” in code is fairly subjective, but there are some key metrics solidified around the community to identify the overall quality/health of your code.
+
+You should generally strive for two main goals when writing high-quality code:
+
+1. Ensuring the code _works as expected_ when executed and produces the expected outputs given certain inputs
+2. The code can be easily read and understood. It’s not ambiguous, both for the person creating it, and other developers who may read it.
+
+Apart from making the code functional and understandable, high-quality code also thinks about _maintainability_ and _testability_, not just for now, but also considering how things might change 6 or 12 months down the line.
+
+## What is “readable” code?
+
+Readable code means that the code can be followed in a logical series of steps, while accurately communicating intent.
+
+### Core principles of readable code
+
+These are _some_ key points to readable code (not a definitive guide):
+
+1. **Concise, to the point**  
+   Keep your code simple and don’t repeat yourself; you can often reuse existing functions in your codebase, or make generic functions that can be used in different situations.
+
+2. **Functions are responsible for one thing – avoiding side effects**
+   Try to follow the [single-responsibility principle](https://en.wikipedia.org/wiki/Single-responsibility_principle)- meaning functions/modules should have one purpose in providing functionality to the core program. Furthermore, [read more about returning early to keep functions short!](https://nevulo.xyz/blog/avoid-indentation-hell-early-returns)
+
+3. **Formatted correctly**
+   The code should have correct, consistent indentation. Try to include gaps between “sections” of the code, like grouping imports, or defining variables.
+
+4. **Documented where necessary**  
+   Your code is providing an explanation to how some software is working, so if something is confusing, it is good practice to leave notes and write documentation. Leave comments explaining _why_ you implemented some code, the code itself is “how”.
+
+5. **Meaningful and intentional naming of variables and functions**  
+   Names of variables and functions can give a lot of value to reviewers of your code. Even things like `user` and `users` for differentiating between a single object and a series of objects.
+
+Example of unreadable code:
+
+```js
+let p = SECRET_PASSWORD
+if (i.sts === 'approved') {
+let b = true
+let dc = 1100
+ if (psw != p) {
+   let r = 'wrong password'
+    let c = 1123
+	let msg = 'Denied: '
+	console.log(msg + r + ", err code:", c)
+     return
+	} else if (psw == p) {
+let dc = 1100
+	let rmsg = 'You\'re in'
+	console.log('' + rmsg + ':', dc)
+     return
+  }
+ return
+} else {
+let c = 1000console.log('Unapproved, code:', c)
+return}
+```
+
+The same program as above, but more readable:
+
+```js
+// Each message returned to the user has a unique code
+let messageCodes = {
+  WRONG_PASSWORD: 1123,
+  CORRECT_PASSWORD: 1100,
+  UNAPPROVED: 1000,
+};
+
+// Unapproved users are not authorized
+if (user.status !== "approved")
+  return console.log(`Unapproved, code: ${messageCodes.UNAPPROVED}`);
+
+// Input password must equal secret password
+if (password !== SECRET_PASSWORD)
+  return console.log(
+    `Denied: wrong password, err code: ${messageCodes.WRONG_PASSWORD}}`
+  );
+
+return console.log(`You\'re in: ${messageCodes.CORRECT_PASSWORD}`);
+```
+
+One key difference between the “unreadable” vs “readable” code is the intent conveyed to the reader.
+
+All they have to work with is what you’ve written, so if it’s just `let c = 1000` and `if (psw != p)`; what does it all mean? How does it all come together to produce a functional result?
+
+## Why should producing high-quality code be a goal?
+
+Striving to produce correct, readable and understandable code ultimately benefits _everybody_, and should be a goal for all developers, for two main reasons:
+
+### 1. For the users.
+
+At the end of the day, most – if not all the code you write will be used by other people at some point, and those are the people we’re writing the code for in the first place. They’re the foundation for our apps, games and other software.
+
+It’s important they have a good experience, or they’ll just move elsewhere due to frustration. You’d never want to see someone struggling to use something you’ve made!
+
+Users won’t see the written code, but if they’re having a fundamentally poor or broken experience, it might be time to start reworking things.
+
+### 2. For your fellow developers. (even if they never see it)
+
+If your code is open-source, or you work in a team, it is good etiquette and productive if your code can be easily read and understood, rather than unorganised or non-functional.
+
+Ensuring that everybody on the team is following a consistent coding standard increases productivity, rather than fiddling around with configuration.
+
+More importantly, making your code easier to read and understand for other developers you work with takes away time and mental load, following the instructions in a logical series of steps is helpful, particularly when attempting to fix a bug.
+
+### 3. For _yourself._
+
+We’re all human, and it’s natural that in 6 months time, you’ll probably be thinking “did I really write this code?”
+
+Actively identify areas of improvement for yourself, so you can continually & iteratively improve the quality of your code.
+
+## Watch out for technical debt
+
+Technical debt is essentially a culmination of small imperfections or trade-offs resulting in a working solution at the time, but causing more work later down the line that needs to be addressed at some point (often called “[code smells](https://en.wikipedia.org/wiki/Code_smell#:~:text=In%20computer%20programming%2C%20a%20code,%2C%20developer%2C%20and%20development%20methodology.)”).
+
+When writing code, it’s important to set out to think about future state and implications of changes you’re implementing now, which may bite you later.
+
+As an example; let’s say you’re building a system where users can level up, going from level 1 to level 2, and so on.
+You’ve hardcoded all the levels in code, up to 100.
+
+However, this system is not scalable, and users will eventually get to level 100. If anyone goes _past_ level 100, the system breaks. So, you need to spend time fixing it, so users can still have a good experience.
+
+The idea is stopping future problems from the start if possible.
+It’s hard to predict the future, but there are common things you can do in code to help yourself down the line, and lower the risk of frequent maintenance.
+
+As the name implies, it’s best to stop “collecting” technical debt and endeavour to address concerns _proactively_, keeping your code clean along the way.
+
+## Actionable items to improve your code quality
+
+1. _Research_ best practices and established standards for the technologies you’re using, embrace them, and try to implement them in your code
+2. _Refactor_ code, look for improvements
+3. Look into _automating_ certain code quality standards, like implementing a linter for automatically checking or correcting the formatting of your code
+
+Importantly, have an open mind! It’s a great habit to continually find ways to improve your code to benefit everyone.
+
+<!--[PROPERTIES]
+- slug: 'code-quality'
+  title: 'What is code quality, and how do you improve it?'
+  description: "Why developers should care about code quality, and actionable tips to improve your code quality"
+  image: cover.jpg
+  createdAt: 1648166478000
+  location: 'posts/code-quality.mdx'
+  readTimeMins: 5
+  difficulty: Intermediate
+  coverAuthor: Luca Bravo
+  coverAuthorUrl: https://unsplash.com/@lucabravo
+  author: Nevulo
+  labels:
+    - programming
+    - code quality
+    - code style
+-->
