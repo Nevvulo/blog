@@ -1,0 +1,118 @@
+# Analyse the cost of your algorithms
+
+When developing software, you get to know that some things take longer than other things. Like, reading a file taking longer than adding a few numbers. Or, getting 10 thousand users in a database over reading from memory.
+
+These are helpful things to know, but we’re also aware that most of the time, it doesn’t matter. Read a file here or there, get those users from the database, it’ll take under a few seconds usually and that’s all we care about.
+
+When developing software for a [production environment](https://codebots.com/app-development/what-are-environments-in-software-development-a-guide-to-the-development-beta-and-production-environments#what-is-a-production-environment), we need to think about _scale_ and _future state_.
+
+If you have 10 thousand users now, what if you have 1 million users in 2 years? An operation with 10 thousand users might take 2 minutes, but with a million, it’d take a couple of hours. What are the implications of this?
+
+## Time and space complexity
+
+In computer science, “_complexity_” is defined as the number of resources the computer needs to run an algorithm. It’s difficult to get an exact estimate on how long an algorithm will take, or how much space it’ll use, typically we’re just interested in how the function grows over time as the input grows.
+
+As a reminder, an algorithm is a set of instructions for the computer that you write in code, used to solve a problem or perform a computation.
+
+“Time” complexity relates to the amount of _time_ it takes to run an algorithm to completion. “Space” complexity relates to the amount of _memory_ an algorithm uses to complete its tasks.
+
+As always with any inputs, it’s important to consider how different values could affect your algorithm. There are three different types of notation for describing the limiting behaviour of a function as the input grows:
+
+- 𝑂-notation (pronounced “big oh”): describes the asymptotic upper bound of execution time, the _most_ amount of time required for the function to run (a worse case scenario)
+- Ω-notation (pronounced “big omega”): describes the asymptotic lower bound of execution time, the _least_ amount of time required for the function to run
+- Θ-notation (pronounced “big theta”): describes the asymptotic tight bound for execution time, essentially, the [intersection](https://en.wikipedia.org/wiki/Set_%28mathematics%29#Intersections) of `O(f(n))` and `Omega(f(n))` (datapoint is in both 𝑂 set and Ω set)
+
+The most significant notation we’re here for is **big-O notation – good** for measuring the _worst-case_ execution time as input grows for a function.
+
+## Big-O notation
+
+Big O notation is a mathematical notation used in computer science for **analysing algorithms for efficiency** and describes the _complexity_ of an algorithm/function.
+
+Big O notation looks like this: `O(n)`.
+`O` represents Big-O notation, and the `n` inside the brackets is a variable that represents the size of the input given to the function.
+![](1_FkQzWqqIMlAHZ_xNrEPKeA.png)
+
+An algorithm with a Big-O of `O(1)` means the function will take the same amount of time to complete, no matter the size of the input. One element, 1 billion elements; the time is constant.
+
+An algorithm with a Big-O of `O(n)` means the time it takes the function to complete grows linearly with the size of the input. Typically, this is an operation like iterating through a list; if you have 1 item in the list, it’ll take less time than 1 billion items and the time taken grows as the items in the list grows.
+
+A worst-case scenario Big-O is `O(n²)` (Big-O of `n` to the power of 2). These are the worst performing algorithms and typically involve repetition, such as looping through 100 users, and for each user, doing 100 more operations. `100 users * 100 operations` equals **10,000** total operations.
+
+### What is Big-O notation used for?
+
+Some functions are more complex regarding time or space than others, and we can use Big-O notation to represent how the resources an algorithm use change as the input changes.
+
+Imagine you have a function which goes through all users, and sends a notification every week.
+
+In your function to solve for requirements, you need to read each user’s document in the database.
+
+Each user’s document takes a fraction of a second to read.
+But, if you’ve got 50,000 users, `0.1 seconds * 50,000 users` equals **8 minutes** in total just to read each users document!
+
+If you are running on infrastructure that has runtime limits, or simply don’t have enough resources, your function will stop.
+
+To prevent problems like these from happening early, you can use Big-O notation to get information about how the resources your algorithm uses grows, as the size of the input given to the algorithm grows.
+
+## When to aim for lower execution time
+
+If you have an algorithm or process that you run manually, or only runs once every so often (say, once every few days) and doesn’t involve many operations – worrying about execution time is probably not a top priority.
+
+Typically, unless you’re having issues, or you want to future-proof your algorithms to work as input expands (users, documents in a database, etc), optimising for execution time in cases where the algorithm runs infrequently can be considered a bit of a waste.
+
+If your algorithm needs to run multiple times per second, or even more frequently, it must run efficiently or things might get blocked, leading to a bad experience for users. If your algorithm involves a large number of operations, this means it might take longer to complete.
+
+Where possible and sensible, anywhere you have a user interface, even internally for employees, after getting things functional, it’s wise to prioritise performance and maintainability.
+
+## How to design algorithms with lower execution time
+
+I don’t personally design functions or algorithms with time/space complexity in mind (although it’s not a bad idea).
+
+Instead, there are some common practices you can implement while planning in your head and writing code to prevent things from scaling up too fast.
+
+### Think about how you’re going to solve the problem
+
+Before starting to implement a solution, try to build a mental model of the steps the computer would need to take to achieve the result you want. There are plenty of ways to solve a problem, usually, and it’s helpful to think through multiple ideas and compare complexity between how you implement an algorithm.
+
+Typically, nested loops or repetition will add complexity to an algorithm.
+
+```js
+const test = Array.from({ length: 10 }).fill(1);
+for (let i = 0; i < 10; i++) {
+  test.map((a) => test.map((b) => a + b));
+}
+```
+
+In the example above, we first define an array with 10 elements, all as the number `1`. There’s a `for` loop that runs the code inside 10 times.
+
+The code in the `for` loop says, for each element in `test`, replace it with whatever is returned in the anonymous function. The return value is _another_ `map` to go through each element in `test`.
+
+In the end, in one iteration of the `for` loop out of 10, we did 20 operations. In 10 iterations, that’s 200 operations.
+
+Try to think through each individual step the computer takes, even through internal methods like `map` as it will branch off more operations to run.
+
+### Optimisations
+
+Usually, you don’t need to worry about making serious low-down optimisations, like picking between `forEach` or a `for` loop, or stressing over down-to-the-millisecond differences in speed. If you’re not sure if you need to optimise, think about maintainability first.
+
+If you’re working in a critical environment where every fraction of a second matters, you’ll likely look towards squeezing every last bit of juice you can out of the language you’re using.
+
+For example, in JavaScript, with the case of `forEach` vs `for` loops, for loops win out by a little making them preferable to use in cases of high performance. Usually, though, differences are negligible.
+
+You’ll want to look towards third-party libraries and your solution in a bigger picture, and if there are small optimisations to be made to reduce computation time.
+
+<!--[PROPERTIES]
+- slug: 'cost-of-algorithms'
+  title: 'Analyse the cost of your algorithms'
+  description: "Time & space complexity in computer science, and how to measure function resources for scale"
+  image: cover.jpg
+  createdAt: 1646822716000
+  location: 'posts/cost-of-algorithms.mdx'
+  readTimeMins: 5
+  coverAuthor: Daniel McCullough
+  coverAuthorUrl: https://unsplash.com/@d_mccullough
+  author: Nevulo
+  labels:
+    - programming
+    - performance
+    - algorithms
+-->

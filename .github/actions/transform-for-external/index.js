@@ -11,7 +11,8 @@ function replaceImgSrc(img) {
 }
 
 function forExternal(contents) {
-  contents = v.replaceAll(contents, /\!\[(.*)\]\(.+\)/gm, replaceImgSrc);
+  const hasAssets = contents.indexOf("(./assets/") !== -1
+  if (hasAssets) contents = v.replaceAll(contents, /\!\[(.*)\]\(.+\)/gm, replaceImgSrc);
   contents = v.replace(
     contents,
     /\<\!\-\-\[PROPERTIES\](((.*)\n)*)\-\-\>/gm,
