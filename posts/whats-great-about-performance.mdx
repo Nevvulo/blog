@@ -1,0 +1,99 @@
+# What’s so great about performance?
+
+Performance can make or break great software. If you’ve got a great app, but it runs at snail’s pace on my device, rendering it unusable, I may as well not even have it installed.
+
+I don’t like to wait around for no reason.[ Most users don’t like to wait](https://web.dev/why-speed-matters/). It’s well documented that users will drop off quickly if your site or application loads slowly because “users” are actually real people with real lives, wanting to get stuff done.
+
+As a developer, performance can be difficult to maintain, especially when there are other priorities. The _speed_ of your application probably doesn’t rank as one of your highest priorities.
+
+Usually, I’ve found it’s beneficial to prototype a solution in code, even if it’s “sloppy” or not as performant as it could be. It’s hard for us to get the grasp of exactly what the “cost” of running all of these instructions for the computer is.
+
+So, why does it matter that we optimise for performance?
+
+## Why does performance matter?
+
+Having a speedy app or website isn’t just a fancy badge to show off. Better performance leads to happier results for everybody involved, whether you’re making open-source software, working in a business aimed at helping people, or working on personal projects!
+
+### Performance for success
+
+One of the funny things about performance is the fact that we take it for granted. We don’t _want_ fast apps, we _expect_ fast apps, and when we don’t get what we expect, the user experience degrades.
+
+HubSpot has written about [how page load times impact conversion rates for businesses](https://blog.hubspot.com/marketing/page-load-time-conversion-rates), and it makes sense, as there’s a lot to fight for. Users are more than happy to go elsewhere if their experience is not satisfied, and [speed matters a lot in user retention and user engagement](https://uxdesign.cc/performance-design-designing-for-the-illusion-of-speed-576110e9e558).
+
+Performance matters at scale. Imagine you’ve got 50 thousand users who have your app installed, relying on it to work properly, every time, and importantly, _fast_. If you’ve got an algorithm which takes 1 second to process something, and it has to run multiple times every second, you’ll quickly drain your resources, and upwards of 50 thousand real people will be having a bad time.
+
+In a business environment, better performance can translate to higher profits and conversions, and ultimately benefit employees and users.
+
+### Performance for the users
+
+It all comes back to the main people running the show; the users. Everything crumbles down if your core user experience is limited by performance issues, especially when things take a substantially long time. You’ll be lucky to have a user on board longer than a few seconds if you leave them waiting.
+
+When your software is fast, you’re helping users get through their tasks and their day faster. It gives users incentive to come back as well. If they know your software is reliable and highly available, there’s no need to actively search for alternatives.
+
+Improved performance means increased retention and engagement. But users are not statistics – at the end of the day, these are real people wanting to use your software for whatever they need.
+
+### Performance for the developers
+
+As developers, we make code to offload work, not create more of it. So, by teaching yourself to create elegant, performant software through planning and testing, it ensures you won’t have to go back and fix it later if something goes wrong.
+
+Sometimes, improved performance comes at the cost of readability. There are things you can do to ensure you [keep your code quality high](https://nevulo.xyz/blog/code-quality), like abstracting code or comparing and contrasting multiple alternatives.
+
+## Improving your performance
+
+### Find out if you’ve got a performance problem
+
+Technically, every app _could_ be faster, but you need to identify whether it _should_ be faster. There’s only so much benefit in squeezing as much performance as possible out of a system, and there’s no point resolving a problem if you’re not sure whether you have it.
+
+Identify whether performance is a pain point for users or yourself through testing and feedback. If you’re aware it is time for change in the speed department, make a plan of attack for places of priority for where you want to improve performance in your software, usually based on areas of high or crucial usage.
+
+Common testing techniques for identifying slow points in your software include:
+
+- High load/stress tests
+- Testing on different devices and workflows
+- Getting user feedback if possible
+
+### Document/record areas of “slowness”
+
+Documenting and recording areas of perceived slowness or dropped performance is an important step in knowing what you need to fix, and allows you to map out different areas or features in your software that are slow so you can identify common patterns or correlations. This will help guide you to fix the problem faster.
+
+Let’s say currently in your app, when you tap on the “sign in” button, it takes 1.5 seconds to register that press. That’s pretty slow for a lot of users.
+
+Document the amount of time it takes now (problem state), as well as goals and requirements to getting to the solution (final state). Find out what is acceptable. Is 0.5 seconds good enough for you or your users? If not, keep iterating through until you think of an end state that meets your requirements.
+
+### Reproduce the problem & implement a fix
+
+Once you’ve identified and documented the performance issue, at some point you can try and reproduce the problem, to help you fix it and give your users the best experience possible.
+
+If you can reproduce the issue in a consistent series of steps, you can almost walk through your code base as the user progresses through your software. If there’s a bug that always only happens after pressing a button, it’s worth looking into the logic for that touchpoint as an example.
+
+Fixing the issue can either be the easiest part of the process, or take you the rest of your days. Regardless of what solution you use to fix the problem, it must meet the requirements you set out when documenting the issue, otherwise, just focus on providing a smooth experience for the user.
+
+## Conclusion
+
+To answer the question; what is so great about performance?
+
+- **Users feel performance.**  
+  Your users are the foundation to success and keeping them happy will keep you happy. If your software works fast, users work fast. Moving business objectives aside, helping users is what we care about.
+
+- **Performance helps businesses be more successful.**  
+  It’s not just a headline, more performant applications (user-facing or internal) [lead to better performance in metrics like conversion rates](https://www.appneta.com/blog/slow-business-apps-whats-the-worst-that-can-happen/).
+
+- **Helping developers for now and later**  
+  Not only do developers get the benefit of feeling reassured that things won’t break _now_, they’ll be able to rely on the scalability of their algorithms for the _future_. Less time is spent maintaining existing systems and more time is spent being productive.
+
+<!--[PROPERTIES]
+- slug: 'whats-great-about-performance'
+  title: "What's so great about performance?"
+  description: "Why does performance matter and who benefits from just having faster software?"
+  image: cover.jpg
+  createdAt: 1646822716000
+  location: 'posts/whats-great-about-performance.mdx'
+  readTimeMins: 5
+  coverAuthor: Marc-Olivier Jodoin
+  coverAuthorUrl: https://unsplash.com/@marcojodoin
+  author: Nevulo
+  labels:
+    - programming
+    - performance
+    - ux
+-->
