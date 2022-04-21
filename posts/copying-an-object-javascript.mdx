@@ -1,0 +1,138 @@
+# Different ways to copy an object in JavaScript
+
+Copying any data, like an object, is a problem every developer encounters at one point or another.
+
+Here’s an example of the problem: you have an object stored in a variable called `user` which contains information related to a user in your application.
+
+```js
+let user = { name: "Blake", age: 20 };
+```
+
+Let’s say the user wants to update their first name, but you also need to keep the data for what their previous name was, perhaps for an audit log.
+
+How can you retain the contents of the “old” user but make the changes required for the “new” user?
+
+You could store the users “old” name in a variable, but it becomes cumbersome when there are many changes you need to keep track of.
+
+This is one example where copying objects comes in handy – when copying data to a new variable, we don’t need to mutate the original value directly and potentially lose data. We can safely store a separate copy of the object contents in another place, and work on that object.
+
+There are a few ways in JavaScript to create a new object using the exact data from the original value. Keep reading to learn about any “gotchas” between these different methods.
+
+## Using object spread syntax or `Object.assign`
+
+One of the simplest ways to copy an object in JavaScript is using `Object.assign`, which copies all properties from one or more source objects to a single target object.
+
+In our case, we don’t really have a _target_ object, as we want to create a _new object_ as a clone.
+
+So, we can pass in an empty object for the first argument (the target object), and pass in the object we would like to clone in the second argument (the source object(s))
+
+```js
+let obj = { a: 1, b: "hi" };
+let clonedObj = Object.assign({}, obj);
+console.log(clonedObj); // { a: 1, b: "hi" }
+```
+
+A shorter way to do this is using [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax), which allows for object expressions to be “expanded”. One implication of this is that we can _expand_ the key/value pairs from our original object into a new object, effectively making a clone.
+
+```js
+const obj = { a: 1, b: "hi" };
+const objClone = { ...obj }; // pass all key/value pairs from an object
+console.log(objClone); // { a: 1, b: "hi" }
+```
+
+Essentially, the `...obj` gets replaced with all the keys and values from `obj`.
+
+Both methods are functionally identical, the only difference being that `Object.assign` sets the properties on the target object, whereas using spread syntax creates a new object – meaning that `Object.assign` would also trigger any setter functions on the object. This isn’t essential for many people, but an interesting thing to note.
+
+Another interesting thing to note is that both methods only perform a _shallow_ copy. What exactly does that mean?
+
+```js
+const user = {
+  id: "abc123",
+  // an object inside of an object
+  name: {
+    first: "John",
+    last: "Doe",
+  },
+};
+
+const userClone = { ...user };
+userClone.id = "newId";
+// Note that the original object is not mutated when modifying primitive values like a string
+console.log(userClone); // { id: "newId", name: { first: "John", last: "Doe" } }
+console.log(user); // { id: "abc123", name: { first: "John", last: "Doe" } }
+
+// When modifying an object inside of a shallow copy...
+userClone.name.first = "Johnny";
+// ...the original object will also be mutated
+console.log(userClone); // { id: "abc123", name: { first: "Johnny", last: "Doe" } }
+console.log(user); // { id: "abc123", name: { first: "Johnny", last: "Doe" } }
+```
+
+A shallow copy of an object means that when you mutate non-primitive values (like the `name` object), it will mutate the clone as expected, but also the original object.
+
+This is because any values stored as an object are **reference** values, meaning that there’s a reference to that object stored. So, when you copy an object with other objects inside, you’re really copying an object with **references** to those other objects.
+
+This doesn’t apply with _primitive_ (simple) values like numbers and strings. When making a shallow copy of an object with other objects inside, you need to be wary of making sure you’re not mutating the original object unintentionally when mutating the clone.
+
+## Converting an object to a JSON string and parsing it back
+
+This method leverages JSON (JavaScript Object Notation) which can hold information about key/value pairs and has support for most basic data types you’d need.
+
+The [`JSON.stringify`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) method allows us to pass an object in the first argument, which is the object to convert to string format. Once we have converted our object to a string, we can take that string and parse it back to an actual object using the [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) method.
+
+```js
+let obj = { a: 1, b: "hi" };
+// create a JSON representation of an object in the form of a string, convert back to object
+let objClone = JSON.parse(JSON.stringify(obj));
+console.log(objClone); // { a: 1, b: "hi" }
+```
+
+Unlike the previous method, this method of cloning does support nested objects better, creating a “_deep copy_”, meaning all values get dereferenced from the original object. With a deep copy, there’s no worry about mutating the original object.
+
+However, because JSON only supports a _limited subset of data types_ in JavaScript such as booleans, strings, arrays, etc. but not things like `Date` objects or `Map`s, these will not be converted properly when creating the clone unless you take additional steps to transform the incompatible values in the object first to something JSON can understand, and then transform them back to the desired data type you want in JavaScript.
+
+On top of this, `JSON.stringify` won’t be able to convert a value to a string [if the value references itself](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#issue_with_json.stringify_when_serializing_circular_references). This is known as a [circular reference](https://stackoverflow.com/questions/7923959/what-does-content-circular-mean-in-javascript), and trying to convert an object that references itself would result in an infinite loop.
+
+## Using `structuredClone` global method
+
+`structuredClone` is a fairly new, global method, meaning access it from anywhere in our code. The benefit of `structuredClone` is that it was made for this purpose; “cloning” or copying an object.
+
+As of the writing of this post, the `structuredClone` method has been [implemented by major browsers in recent versions](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone#browser_compatibility) (including Node 17+).
+
+```js
+// Create an object with a value and a circular reference to itself
+let original = { name: "test" };
+original.self = original;
+
+// Clone it
+let clone = structuredClone(original);
+
+console.assert(clone !== original); // the objects are don't have the same identity
+console.assert(clone.name === "test"); // they do have the same values
+console.assert(clone.self === clone); // and the circular reference is preserved
+```
+
+Unlike the `JSON.parse/stringify` method, this does support circular references, and it preserves _most_ values and data types.
+
+Of note, `structuredClone` will throw an error when cloning `Error` types or DOM nodes. If your object contains functions, these will be quietly discarded from the result. Read more about [features and limitations of `structuredClone`](https://web.dev/structured-clone/#features-and-limitations).
+
+For most cases, though, this will create a deep copy of whatever objects you throw at it.
+
+<!--[PROPERTIES]
+- slug: 'copying-an-object-javascript'
+  title: 'Different ways to copy an object in JavaScript'
+  description: "Copying any data, like an object, is a problem every developer encounters at one point or another. Here are different methods of copying an object in JavaScript."
+  image: cover.jpg
+  createdAt: 1650540000000
+  location: 'posts/copying-an-object-javascript.mdx'
+  readTimeMins: 5
+  difficulty: Intermediate
+  coverAuthor: Ralph Mayhew
+  coverAuthorUrl: https://unsplash.com/@ralphmayhew
+  author: Nevulo
+  labels:
+    - programming
+    - javascript
+    - oop
+-->
