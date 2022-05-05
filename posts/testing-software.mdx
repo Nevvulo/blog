@@ -14,7 +14,7 @@ Each method involves creating some expectation that is widely accepted on what _
 
 Unit tests involve assessing the behaviour and asserting the output of individual “units” or sections in source code. Units are small components, functions, or modules in the code. Importantly, they are isolated bits of code to be tested and verified to build up to testing bigger functionality.
 
-![](assets/testing-software/unit-test.png)
+![](./assets/testing-software/unit-test.png)
 
 As an example, you might have a relatively simple function that just adds two numbers:
 
@@ -46,7 +46,7 @@ Over time, you’ll have hundreds of units tested in your code, building up conf
 
 Integration tests are where different units, modules, or components in software get tested together and ensuring they work as intended when connected to each other.
 
-![](assets/testing-software/integration-test.png)
+![](./assets/testing-software/integration-test.png)
 
 For example, a website that involves shopping will require the user to add an item to their cart and sign in. You could add an integration test to ensure that the user can both add an item to their cart and sign in, in sequence, as expected.
 
@@ -54,7 +54,7 @@ For example, a website that involves shopping will require the user to add an it
 
 End-to-end tests ensure that the entire user journey; their experience from the beginning to the end in the application behaves as expected. It’s meant to simulate a real user scenario and validating the software works consistently when provided certain inputs.
 
-![](assets/testing-software/end-to-end-test.png)
+![](./assets/testing-software/end-to-end-test.png)
 
 If you had to verify the functionality of user account creation and deletion, and everything in between, you could program a test runner to run your application and perform the individual actions you’ve defined in code, asserting each step got executed correctly.
 
@@ -112,7 +112,7 @@ Flaky tests may take a long time to eventually surface and can block the continu
 
 They’re typically caused by false assumptions in data being returned, race conditions, or insufficient mocking of calls to external systems to ensure they’re not influencing tests.
 
-![](assets/testing-software/flaky-tests.png)
+![](./assets/testing-software/flaky-tests.png)
 
 ### Test-driven development: red, green, refactor
 
@@ -120,7 +120,7 @@ The idea behind [test-driven development](https://testdriven.io/test-driven-deve
 
 The tests will fail at the start (_red_) because there’s no logic. You begin to add the logic pertaining to the requirements until all tests are passing (_green_). The last part involves _refactoring_ the code, so it is optimised for production and readable for others.
 
-![](assets/testing-software/red-green-refactor.png)
+![](./assets/testing-software/red-green-refactor.png)
 
 <!--[PROPERTIES]
 - slug: 'testing-software'
