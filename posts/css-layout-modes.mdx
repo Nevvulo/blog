@@ -1,0 +1,83 @@
+# CSS layout: how to position elements on your webpage
+
+One of the most fundamental requirements to creating a great website is being able to move elements around on the page, instead of having everything appear in one big blob in a corner.
+
+## Layout modes
+
+If you’ve styled elements with CSS, you know that it’s essentially putting a bunch of properties and values on a selected element in just the right way to make things look the way you want. Add some `color: red` here, a dash of `background: black` there.
+
+So, we know how to visually differentiate elements, including size, colour, etc., but how do we actually move an element to where we want, for the resolutions we want?
+
+CSS comes baked with a bunch of different _layout modes_ for adjusting the **behaviour** of elements so you can lay out your page the way you want.
+
+Whether you need a grid pattern, a table, columns, and much more, you’ll just need to find the right layout mode for what you need.
+
+It’s important to understand that different layout modes will affect the way elements display differently, and not all CSS properties will work across all layout modes.
+
+The default layout mode is called “flow”, where elements flow down the page.
+
+## The `display` property
+
+The `display` CSS property is used to set whether or not an element uses [“block” or “inline”](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flow_Layout/Block_and_Inline_Layout_in_Normal_Flow) layout, and controls what layout child elements use, such as flow layout, or flexbox.
+
+## Different types of layout modes
+
+### Normal flow (default)
+
+Normal flow is the default way webpages lay themselves out when you haven’t applied any CSS to change how elements appear. Elements will appear at the top of the document and stack downwards, each one appearing on a new line below the last, as space is needed.
+
+### Flexbox
+
+The flexible box layout model is a one-dimensional box where content can be positioned and distributed across an axis (horizontal or vertical).
+
+This is helpful if you want to display a collection of elements in one dimension, like all on the same row for a navigation bar for example, or in a list.
+
+### Grid
+
+Whereas Flexbox works in only _one dimension_, CSS Grid layout, which you can consider a successor to Flexbox, works with _two dimensions_, and you can align elements into **columns and rows**.
+
+The main advantage of Grid over Flexbox is that it’s much more suited for creating responsive, collapsible layouts that work in a more predictable way.
+
+### Positioning with the `position` property
+
+If we want to shift elements without affecting other elements on the page heavily, such as shifting a button a little bit to the left, positioning is perfect. Use the `top`, `left`, `right` and `bottom` properties on an element with units as values to move the element.
+
+- Relative positioning
+  - Used for moving elements relative to themselves, where they’d normally be
+- Absolute positioning
+  - Used for displaying an element in an _exact_ location on the page, a certain distance from the edge of the page
+  - Other elements won’t be affected by absolutely positioned elements
+- Fixed positioning
+  - Similar to absolute positioning, but _anchors_ or _fixes_ an element in place relative to the closest positioned ancestor
+- Sticky positioning
+  - A hybrid between relative and fixed positioning. Element will act as if it were relatively positioned until it is scrolled to a certain threshold (e.g., `10px` from the top of the container), after which it becomes fixed
+
+### Floats
+
+The float layout will pretty much “pull” an element to either the left or right side of the screen, using `float: left` or `float: right`.
+
+On a technical level, it’ll take the respective element out of the “normal flow” of the document, shifting it to the left, or right, until it touches the edge of its containing box, or another floated element.
+
+Elements and text can still wrap around floated elements, unlike _absolutely_ positioned elements.
+
+### Table layout
+
+Specifically designed for creating tables with rows and columns, like what you’d find in Excel. Great for rendering table data and makes it easy to customise tables such as spacing between cells, alignment of elements in the cells, etc.
+
+Table layout is also a desirable fallback for older clients trying to replicate something like Flexbox or Grid where it’s not supported (ie. email clients… 😡).
+
+<!--[PROPERTIES]
+- slug: 'css-layout-modes'
+  title: 'CSS layout & how to position elements on your webpage'
+  description: "Understanding layout modes in CSS, how they affect the behaviour of elements, and positioning elements in webpages"
+  image: cover.jpg
+  createdAt: 1646821716000
+  location: 'posts/css-layout-modes.mdx'
+  readTimeMins: 3
+  coverAuthor: Hal Gatewood
+  coverAuthorUrl: https://unsplash.com/@halacious
+  author: Nevulo
+  labels:
+    - web design
+    - css
+-->
