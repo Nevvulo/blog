@@ -18,8 +18,8 @@ function forExternal(contents) {
     /\<\!\-\-\[PROPERTIES\](((.*)\n)*)\-\-\>/gm,
     ""
   );
-  contents = v.replace(contents, /\A#(.+)/gm, "");
-  return contents;
+  contents = v.replace(contents, /^\#[^#](.+)/g, "");
+  return contents.trim();
 }
 
 function forMedium(contents) {

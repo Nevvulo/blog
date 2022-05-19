@@ -1,44 +1,50 @@
-import {it, expect} from '@jest/globals'
+import { it, expect } from '@jest/globals'
 import * as cp from 'child_process'
 import * as path from 'path'
 import * as process from 'process'
 import * as fs from 'fs'
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 
+const posts = [
+  'code-review',
+  'git-rebase'
+]
 
-const np = process.execPath
+const platforms = [
+  'medium',
+  'devto',
+  'hashnode'
+]
+
+const { execPath } = process
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ip = path.join(__dirname, '..', 'index.js')
+const indexPath = path.join(__dirname, '..', 'index.js')
 
-it('should output medium valid content', () => {
-  const exampleFile = fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'posts', 'git-rebase.mdx')).toString()
-  const expectedContent = fs.readFileSync(path.join(__dirname, 'medium.md')).toString()
-  process.env['INPUT_CONTENTS'] = exampleFile
-  const options = {env: process.env}
-  const output = cp.execFileSync(np, [ip], options).toString()
-  const mediumOutput = output.split('medium::')[1]
-  expect(mediumOutput.replace(/\%0A/g, '\n').trimEnd() + '\n').toStrictEqual(expectedContent)
-})
+describe.each(posts)('%s', (name) => {
+  it.each(platforms)('should output valid %s content', (platform) => {
+    const exampleFile = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', '..', 'posts', `${name}.mdx`)
+    ).toString()
+    const expectedContent = fs.readFileSync(
+      path.join(__dirname, 'posts', name, `${platform}.md`)
+    ).toString()
+    
+    const options = { env: { INPUT_CONTENTS: exampleFile } }
+    const output = cp.execFileSync(execPath, [indexPath], options).toString()
+    let platformOutput = output.split(`${platform}::`)[1]
 
-it('should output devto valid content', () => {
-  const exampleFile = fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'posts', 'git-rebase.mdx')).toString()
-  const expectedContent = fs.readFileSync(path.join(__dirname, 'devto.md')).toString()
-  process.env['INPUT_CONTENTS'] = exampleFile
-  const options = {env: process.env}
-  const output = cp.execFileSync(np, [ip], options).toString()
-  let devToOutput = output.split('devto::')[1]
-  devToOutput = devToOutput.split('\n\n')[0]
-  expect(devToOutput.replace(/\%0A/g, '\n').trimEnd() + '\n').toStrictEqual(expectedContent)
-})
+    // the first platform outputted doesn't have trailing whitepsace
+    if (platforms[0] !== platform) 
+      platformOutput = platformOutput.split('\n\n')[0]
 
-it('should output hashnode valid content', () => {
-  const exampleFile = fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'posts', 'git-rebase.mdx')).toString()
-  const expectedContent = fs.readFileSync(path.join(__dirname, 'hashnode.md')).toString()
-  process.env['INPUT_CONTENTS'] = exampleFile
-  const options = {env: process.env}
-  const output = cp.execFileSync(np, [ip], options).toString()
-  let hashnodeOutput = output.split('hashnode::')[1]
-  hashnodeOutput = hashnodeOutput.split('\n\n')[0]
-  expect(hashnodeOutput.replace(/\%0A/g, '\n').trimEnd() + '\n').toStrictEqual(expectedContent)
+    expect(
+      platformOutput
+        .replace(/\%0A/g, '\n')
+        .trimEnd() 
+        + '\n'
+    )
+      .toStrictEqual(expectedContent)
+  })
 })
