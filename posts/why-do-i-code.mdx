@@ -26,7 +26,7 @@ End Sub
 ```
 
 Here’s what _my_ VB.NET code looked like roughly 7 years ago:
-![A button click handler. If Label 5 is visible, then.. set Label 5's visibility to false. Set the visibility of "label 2" to true. Set the visibility of "label 3" to true. Set the visibility of "label 8" to false. Set the visibility of "label 9" to true. Set the visibility of "textbox 1" to false. Set the visibility of "textbox 2" to true. Set the visibility of "generate button" to false. Set the visibility of "label 10" to true. Enable "timer 1". This pattern continues for an additional 35 lines of code in the image, the entire file being over 1500 lines long.](assets/why-do-i-code/vbnet.png)
+![A button click handler. If Label 5 is visible, then.. set Label 5's visibility to false. Set the visibility of "label 2" to true. Set the visibility of "label 3" to true. Set the visibility of "label 8" to false. Set the visibility of "label 9" to true. Set the visibility of "textbox 1" to false. Set the visibility of "textbox 2" to true. Set the visibility of "generate button" to false. Set the visibility of "label 10" to true. Enable "timer 1". This pattern continues for an additional 35 lines of code in the image, the entire file being over 1500 lines long.](./assets/why-do-i-code/vbnet.png)
 I probably don’t need to tell you that, _surely_, there’s a _better way_.
 For context, this is just one snippet of a ~1500 line file for a security manager application. When a certain button gets clicked in the app, it changes the visibility of over 30 different labels, buttons, and other “elements” in the app screen, since everything was in the same view.
 
