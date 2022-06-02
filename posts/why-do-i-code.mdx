@@ -1,0 +1,114 @@
+# Why do I code?
+
+Learning how to read and write code is a versatile skill. I recently wrote about why I [believe learning how to program is a vital skill](https://nevulo.xyz/blog/why-programming-is-important "believe learning how to program is a really important skill") that everybody should look to achieve.
+
+This is for those who are looking to start out, or those who are in the space but struggling to find the motivation to continue. I want to share some inspiration around reasons _why_ I code, why I _love it_, and how you can shift your mindset to stop programming from becoming a _chore_.
+
+## Why I started coding
+
+I’ve been interested in computers since before the age of 10, but I can attribute one of my earliest experiences with programming with Visual Basic .NET (also known as VB.NET).
+
+Somewhere around the age of 13, Visual Basic .NET was my first exposure to object-oriented programming. No need to go into my backstory, all I was excited about was being able to create Windows applications that could do certain things when clicking on buttons.
+
+For the first time, I had the _power_ to create essentially anything I wanted to. This, combined with my constantly evolving curiosity and desire to get better, I was always asking myself “how can this be better”? What else could I create if I used the knowledge I gained since the last thing I created?
+
+## Why I love coding today
+
+There are many reasons I love coding, some of which I’ve listed later in this post. One that stands out is the fact that I’m obsessed with self-improvement, for my own sake and to give a better experience for everybody involved.
+
+Going back to the VB.NET story, below is an example of what the syntax looks like:
+
+```vb
+Private Sub Button1_Click(sender As object, e As EventArgs) Handles Button1.Click
+	Dim message as String = "Hello World!"
+    System.Console.WriteLine(message)
+End Sub
+```
+
+Here’s what _my_ VB.NET code looked like roughly 7 years ago:
+![A button click handler. If Label 5 is visible, then.. set Label 5's visibility to false. Set the visibility of "label 2" to true. Set the visibility of "label 3" to true. Set the visibility of "label 8" to false. Set the visibility of "label 9" to true. Set the visibility of "textbox 1" to false. Set the visibility of "textbox 2" to true. Set the visibility of "generate button" to false. Set the visibility of "label 10" to true. Enable "timer 1". This pattern continues for an additional 35 lines of code in the image, the entire file being over 1500 lines long.](assets/why-do-i-code/vbnet.png)
+I probably don’t need to tell you that, _surely_, there’s a _better way_.
+For context, this is just one snippet of a ~1500 line file for a security manager application. When a certain button gets clicked in the app, it changes the visibility of over 30 different labels, buttons, and other “elements” in the app screen, since everything was in the same view.
+
+It was _a start_. Years ago, this was revolutionary to me and though I was aware it was cumbersome, I was likely under the impression this is just “how things are” in programming.
+
+The truth is, well-designed programs can achieve the same result in less lines of code, while remaining [scalable](https://en.wikipedia.org/wiki/Scalability "scalable").
+
+It’s not about necessarily getting things done in less lines of code. It’s about understanding _architecture_; specifically _why_ the implementation above could be improved, ultimately delivering the best experience for those reading the code, and those using it.
+
+If I added a new button to the view with the implementation above, I’d have to add a new line to that method handling when “button 2” is clicked – and all the other buttons necessary. 😬
+
+## Why coding tickles my brain in just the right way
+
+### The thrill of hard work paying off
+
+There’s no doubt about it, programming is difficult, and can be draining. At the end of the day, we’re just giving instructions to a computer through a terse syntax, most of which rarely resembles basic English. It often throws up new surprises, especially when you’re just starting out.
+
+### Bringing art to life
+
+I’m a strong believer that, like many things, programming is a form of art. You can think of a programmer like any content creator, whether it’d be a musician, painter, or a writer. Programmers start with a blank slate and bring something into the world that didn’t previously exist.
+
+I draw many parallels as a programmer to an artist. Most artists don’t just think about getting strokes on a paper or the screen. They think about the larger _composition_ of the work, generally tying all parts of an artwork together to create an enjoyable experience for a wide array of viewers.
+
+When all of these things come together and are done well…
+
+- the _developer_ experience (code design, readability, maintainability & testability)
+- the _user_ experience (in terms of intuitiveness, functionality, and overall happiness)
+- the _management_ experience (analytics, including tracking what’s working and what isn’t for continual improvement, as well as scalability for future state)
+
+This is when I get the true feeling of having created a masterpiece. Similar to an artist stepping away from their work to admire the hours of dedication and thought behind it for a moment, I feel the same way when _everybody_ has a good, consistent experience with a solution I’ve developed.
+
+### Full creative freedom
+
+I love the fact that programming gives anybody the ability to create _whatever they desire_. Think of it like having an infinite set of tools in your belt, giving you (and others) the opportunity to create astonishing, sometimes ridiculous things.
+
+We often spend more time than necessary trying to get existing technology to work the way we want. There are plenty of tools that already exist, but if you’re looking to supercharge your productivity and find a workflow that performs the way you expect with results tailored for your experience, it can be sometimes better to start from scratch and develop your own solution.
+
+More than anything, though, I love how creative some programmers can be. Here are some examples of just _how_ creative you can be with programming and automation:
+
+- A Ruby program that generates 128 different programs in various languages, circling back to the original Ruby implementation ([quine-relay](https://github.com/mame/quine-relay "quine-relay"))
+- You’ve heard of [base 2](https://en.wikipedia.org/wiki/Binary_number "base 2"), [base 10](https://www.thoughtco.com/definition-of-base-10-2312365 "base 10"), base 16… but what about [base 131,072](https://github.com/qntm/base131072 "base 131,072")?
+- A programming language where the entire syntax consists of just emoji, aptly named [Emojicode](https://github.com/emojicode/emojicode "Emojicode").
+
+Why do these projects exist?
+**Why not?** 🤠
+
+### Making _people_ happy
+
+Forget users, I want to make _real people_ happy through software. With great power comes great responsibility. Your [code has consequences in the real world](https://www.youtube.com/watch?v=LZM9YdO_QKk "code has consequences on the real world"), and that’s a privilege not to be taken lightly.
+
+At some point, somebody _besides you_ will use the programs you write.
+Real people use the programs developers make. Similar to how real people use the buildings that construction workers build up. We expect those building to stand the test of time, no matter the demand.
+
+Now more than ever, I’m inspired to create programs that _make the world a happier, better place_. It’s a bold mission, but it starts simple: thinking broadly about how a wide audience might interact with your logic.
+
+There’s been too many times when I’ve used software, and it just hasn’t lived up to standards. You’ve likely had the same thing.
+
+Imagine a food ordering app where you can’t submit your payment, the inability to progress in a learning management system, poor user design in your banking app causing a 20-second task to take 2 minutes; the list goes on and on.
+
+These all lead to the same thing: a frustrating user experience. Beyond analytics and metrics leading to [worse conversion rates](https://cxl.com/blog/great-user-experience-ux-leads-to-conversions/ "worse conversion rates") for your product, put yourself in just _one_ potential user’s shoes who might experience frustration. Multiply that feeling by however many users you’re serving, and suddenly the scale of the issue magnifies.
+
+It’s not about being a good or bad developer, or implementing best practices. While these things matter, there’s fundamental design decisions you can think about; small wins you can implement and incorporate in your development workflow to increase user happiness, such as:
+
+- thinking about success/loading/error states for network requests
+- adding deterministic, automated test cases – testing your logic to ensure confidence when making fixes or shipping new changes
+- considering scale and performance when making changes, so things work _great_ now, and continue to work well into the future
+
+There’s no silver bullet to making users happy. However, I think putting real product users at the forefront of your mind when developing features or fixes to grasp sensibility and intuitiveness goes a long way to achieving that goal.
+
+<!--[PROPERTIES]
+- slug: 'why-do-i-code'
+  title: 'Why do I code?'
+  description: "How I started coding, why I love it, and inspiration to avoid programming from becoming a monotonous chore"
+  image: cover.jpg
+  createdAt: 1654162862000
+  location: 'posts/why-do-i-code.mdx'
+  readTimeMins: 5
+  coverAuthor: Avi Richards
+  coverAuthorUrl: https://unsplash.com/@avirichards
+  author: Nevulo
+  labels:
+    - programming
+    - inspiration
+    - meta
+-->
