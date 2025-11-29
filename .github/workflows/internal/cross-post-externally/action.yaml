@@ -71,6 +71,7 @@ runs:
     - name: Publish to Hashnode
       uses: Nevvulo/hashnode-publisher@main
       id: hashnode
+      continue-on-error: true
       # TOOD: needs tags
       with:
         api_key: ${{ inputs.hashnode_token }}
@@ -83,6 +84,7 @@ runs:
     - name: Publish to Dev.to
       uses: Nevvulo/dev-to-publisher@main
       id: devto
+      continue-on-error: true
       with:
         api_key: ${{ inputs.devto_token }}
         title: ${{ inputs.title }}
@@ -100,6 +102,7 @@ runs:
     - name: Publish to Medium
       uses: infraway/medium-post-markdown@v1.6.0
       id: medium
+      continue-on-error: true
       with:
         access_token: ${{ inputs.medium_token }}
         markdown_file: ./medium.md
