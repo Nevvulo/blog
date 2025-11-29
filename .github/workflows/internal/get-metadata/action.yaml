@@ -64,7 +64,7 @@ runs:
         content="${content//'%'/'%25'}"
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
-        echo "::set-output name=contents::$content"
+        echo "contents=$content" >> $GITHUB_OUTPUT
         ./scripts/extract-blog-properties.sh ${{ inputs.file }}
 
     # Converts the post-properties.yml file created from the previous step
@@ -96,16 +96,16 @@ runs:
         export DEVTO_URL=$(echo "$JSON" | jq -r '.[].devToUrl')
         export HASHNODE_ID=$(echo "$JSON" | jq -r '.[].hashnodeId')
         export HASHNODE_URL=$(echo "$JSON" | jq -r '.[].hashnodeUrl')
-        echo "::set-output name=json::$OUTPUT"
-        echo "::set-output name=slug::$SLUG"
-        echo "::set-output name=title::$TITLE"
-        echo "::set-output name=description::$DESCRIPTION"
-        echo "::set-output name=image::$IMAGE"
-        echo "::set-output name=original_url::$ORIGINAL_URL"
-        echo "::set-output name=tags::$TAGS"
-        echo "::set-output name=mediumid::$MEDIUM_ID"
-        echo "::set-output name=mediumurl::$MEDIUM_URL"
-        echo "::set-output name=devtoid::$DEVTO_ID"
-        echo "::set-output name=devtourl::$DEVTO_URL"
-        echo "::set-output name=hashnodeid::$HASHNODE_ID"
-        echo "::set-output name=hashnodeurl::$HASHNODE_URL"
+        echo "json=$OUTPUT" >> $GITHUB_OUTPUT
+        echo "slug=$SLUG" >> $GITHUB_OUTPUT
+        echo "title=$TITLE" >> $GITHUB_OUTPUT
+        echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
+        echo "image=$IMAGE" >> $GITHUB_OUTPUT
+        echo "original_url=$ORIGINAL_URL" >> $GITHUB_OUTPUT
+        echo "tags=$TAGS" >> $GITHUB_OUTPUT
+        echo "mediumid=$MEDIUM_ID" >> $GITHUB_OUTPUT
+        echo "mediumurl=$MEDIUM_URL" >> $GITHUB_OUTPUT
+        echo "devtoid=$DEVTO_ID" >> $GITHUB_OUTPUT
+        echo "devtourl=$DEVTO_URL" >> $GITHUB_OUTPUT
+        echo "hashnodeid=$HASHNODE_ID" >> $GITHUB_OUTPUT
+        echo "hashnodeurl=$HASHNODE_URL" >> $GITHUB_OUTPUT
