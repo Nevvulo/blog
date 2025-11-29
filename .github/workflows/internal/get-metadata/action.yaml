@@ -89,7 +89,7 @@ runs:
         export DESCRIPTION=$(echo "$JSON" | jq -r '.[].description')
         export IMAGE=$(echo "$JSON" | jq -r '.[].image')
         export ORIGINAL_URL=https://nevulo.xyz/blog/$(echo "$JSON" | jq -r '.[].slug')
-        export TAGS=$(echo "$JSON" | jq -r '.[].labels')
+        export TAGS=$(echo "$JSON" | jq -c '.[].labels')
         export MEDIUM_ID=$(echo "$JSON" | jq -r '.[].mediumId')
         export MEDIUM_URL=$(echo "$JSON" | jq -r '.[].mediumUrl')
         export DEVTO_ID=$(echo "$JSON" | jq -r '.[].devToId')
