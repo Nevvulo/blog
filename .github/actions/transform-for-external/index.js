@@ -23,9 +23,15 @@ function forExternal(contents) {
 }
 
 function forMedium(contents) {
-  let [properties] = contents.match(
+  const match = contents.match(
     /\<\!\-\-\[PROPERTIES\](((.*)\n)*)\-\-\>/gm
   );
+
+  if (!match) {
+    return forExternal(contents);
+  }
+
+  let [properties] = match;
   contents = forExternal(contents);
   properties = properties.split("\n");
   properties.pop();
@@ -51,7 +57,12 @@ function forHashnode(contents) {
 }
 
 async function run() {
-  const source = core.getInput("contents");
+  let source = core.getInput("contents");
+
+  // Decode URL-encoded characters
+  source = source.replace(/%0A/g, '\n');
+  source = source.replace(/%0D/g, '\r');
+  source = source.replace(/%25/g, '%');
 
   const hashnode = forHashnode(source);
   const devto = forDevTo(source);
