@@ -1,0 +1,228 @@
+# I made my own game engine, inside ROBLOX
+
+Not because I wanted to, just because the built-in physics kept breaking my game.
+
+A story about some serious ROBLOX game development. Buckle up, this is going to be as much as a ride for you as it was for me.
+
+Let’s get one thing cleared up. Yes - ROBLOX itself is a game engine. Unless you’re crazy (and have very specific requirements, like me), it’s absolutely **ridiculous** to re-implement an entire rendering and physics engine *on top* of what ROBLOX already provides.
+
+However, for my game, Golfquest, nothing fits the norm, and I *needed* a completely bespoke system to handle real-time golf ball interactions.
+Let’s dive in.
+
+## How this article will be structured
+
+This is going to be one of the longest pieces of writing I will ever have made, and therefore it needs some structure.
+
+I’ll start with ROBLOX itself; in case you’re not familiar with the platform. I’ll go over what it provides out of the box, why it was not enough for me, what challenges I faced for this particular game which I didn’t see coming.
+
+We’ll go over how I ultimately wrote thousands of lines of Luau (with some AI help) to develop a capable custom engine, which *does* achieve what I set out for.
+
+But, before all of that, I want to set the stage and lay out what my game is, why I picked ROBLOX in the first place, and what qualified my game for “custom engine” status?
+
+## Why ROBLOX, and what is Golfquest? 
+
+I’ve always wanted to make my own ROBLOX game ever since I’ve been on the platform. 
+Even to get a couple of people playing a game you made live always warms the heart! I didn’t intend to create a custom engine from the beginning. I genuinely just wanted to make something fairly simple, hoping to be able to use most of the built-in tools. 
+
+Given that this is one of my first proper games, I wanted to get acquainted with 3D engines like ROBLOX to get more used to vectors, game flow, etc.
+
+You see, “Golfquest” is, a multi-player **golf** game - spurred from my love of golf.
+In its simplest form, it’s an *infinite*, dynamically-generated open world where you play as a golf ball. You can shoot your ball all around the place, collecting items, and aiming for flags. It features courses randomly throughout the open world which you can hunt for. There’s also casual mode, where you can just queue up and rotate around pre-defined courses for competitive fun. 
+Beyond just golfing, there’s other fun stuff you can do. You can perform little tricks in-air for points, you can build up your own personal island in an idle fashion, build up your inventory of golf items, and much more.
+
+.. okay! Nothing here sounds too crazy so far. A pretty standard golf game, with some new mechanics. This shouldn’t be a *humungous* project, right?
+
+Haha! I mean.. seriously, right? I was under the delusion I’d have the game done in a few months. 
+
+ROBLOX is *intended* to be one of the simplest ways to start up a game, and it has got a fast growing userbase. Launched in 2006, coming up on 20 full years of giving playful experiences for a younger audience around the world. I’ve got plenty of experience with the platform and loved it as a kid.
+
+### Early development & collision catastrophe
+
+I was convinced early on that I could get away with using parts or models directly, and relying on ROBLOX’s built-in collision system.
+
+Unfortunately, we wouldn’t be talking about *this* right now if it had worked properly. 
+I would’ve loved to have stopped the post right here; “ROBLOX’s collision blew me out of the water, and I went on with the rest of my game!”
+
+.. yeah, absolutely not.
+
+I think anybody familiar with ROBLOX knows that you can essentially clip through anything if you try hard enough. Sadly, the same was true in my game. **At high speeds, the ball would sometimes clip clean through the terrain** - no bounce, just straight into the void. This is known as “tunnelling”. This was early on when I was using `TerrainService` directly, but it was a frequent issue no matter what I tried.
+
+Every time I’d see the ball go through the ground, I’d just feel shattered. In a golf game, I personally think *falling through the ground* is unacceptable. When I saw this happening in late 2024 (when the game started development), I knew it just wouldn’t be a good experience.
+
+I frantically looked through the developer forum to see what my, limited, options were. You can increase the size of parts to reduce tunnelling - you can obviously reduce the forces you’re working with to prevent it as well, but none of these satisfied me.
+
+Honestly, I’d be shocked if these “patches” satisfied anybody. As a letter to ROBLOX, it’d be lovely to see more time and effort invested to prevent tunnelling, because it can ruin the core experience, enable cheating, and creates frustration.
+
+I didn’t really want to be forced down a corner where my only “option” is to change the way my game world or mechanics work to appease ROBLOX.
+
+A little later on, I discovered `EditableMesh`, a potentially game-changing API for generating meshes that can have their vertices modified in a way to create custom shapes.
+
+￼
+
+￼
+ 
+This worked pretty well for what it’s worth, though also worth mentioning it was *too expensive* for a vast open-world like I wanted, causing lag - a death sentence for an infinite open world. It was fairly quick to generate the scene above, but scaling it meant clients would get laggy quickly, and it clearly just wasn’t meant for huge terrain like this.
+
+Once again, it was back to the drawing board.
+
+## Why was it “necessary” to create a new engine for this?
+
+With the pre-amble out of the way, and having described the rough problem, why did I lose my mind and decide to create a custom engine anyways?
+
+Clearly, the options from the dev forum would have worked. I actually tested with lower impulse forces + thicker parts, and this worked *okay*. But, it still was not **perfect**. I could play for minutes on end without any issues, but after no more than a few minutes, I’d still find *rarely* that the ball would tunnel through these parts. Plus, the gameplay was significantly hindered with these changes, and it wouldn’t have worked for me.
+
+I think the main issue in hindsight, was the fact that I was using ROBLOX’s `Part:ApplyImpulse` on my ball part, and the built-in collision for the parts fails to be accurate when working with higher speeds (this will make sense a bit further in the post). Even upwards of 200 “studs” a second, this was still too much.
+
+A bit later on, I moved from using parts to models to see how this would fare, and experimented with other combinations (like parts inside of models). Some of these worked better than I expected.
+
+ROBLOX does provide multiple collision fidelity options for models, including `PreciseConvexDecomposition`, which, on paper, offers the most accurate collision representation available. It attempts to decompose a complex mesh into multiple convex hulls that more closely match the visual geometry.
+
+I tried this extensively. Unfortunately, even at its highest fidelity, it will *still never be a 1:1 match* with the rendered mesh. Worse, it came with significant downsides: higher CPU cost, longer computation times, and noticeable performance degradation once I started scaling beyond a handful of models.
+
+This was weeks in. I was almost happy to call it good with the models and move on. Almost.
+Still. There was an issue.
+
+It was very early development, and I was still prototyping how the world generation and ball movement would work. I knew that if I wanted a dynamic, open-world adventure golf game, I needed something more robust than spamming models or parts in a weird programatic way.
+
+Models had their own limitations, and it was difficult to dynamically generate them in a way that could create smooth, unique golf courses and lush landscapes.
+
+So, I got thinking. It took weeks of thinking, honestly.
+
+It was a late night, and I was explaining it all to my partner. Would the game be foiled? I knew in the back of my head, I’m an engineer, I could develop a ridiculous solution if I wanted.
+
+But, there was a day in early 2025 where something clicked. It was a real moment of ingenuity, thankfully not prompted from AI.
+
+I had a thought, in the hopes of saving my sanity; *what if I split the visual and collision layers*? What if I could guarantee that the collision works in a deterministic way (using *math*!), and the visual parts can just line up to match that “collision mesh”? That would 100% solve this collision shit, right?
+
+Rather than trying to align and adjust parts, praying collisions work exactly how I wished, I started to introduce some basic physics logic to prevent the ball going below certain points. Soon enough, I had something working - the ball was able to smoothly roll up and down “invisible” hills, based on a heightmap!
+
+I tested this for a few days to ensure it would be the silver bullet, and thankfully, it did hold up. My new logic makes use of “continuous collision detection” (CCD), where as ROBLOX seemingly only uses a **discrete collision detection** system that checks for collisions at fixed physics steps (up to 240Hz).
+
+What makes continuous collision detection more appropriate for my use case, is the fact that extremely high speeds don’t cause teleporting straight through what you’re aiming at.
+
+**Discrete Collision Detection (DCD)**:
+* Checks object positions at fixed intervals (every physics step)
+* If an object moves from point A to point B, it only checks collision at those two points
+* Fast objects can "teleport" through thin walls between checks, leading to tunnelling
+
+**Continuous Collision Detection (CCD)**:
+* Traces the path between point A and point B
+* Essentially does swept/raycast checks along the entire trajectory
+* Catches collisions even if the object would've passed through something
+* More expensive computationally, but prevents tunneling for fast objects
+
+On that last point, it’s absolutely right it is *more* expensive, and leads to higher frame times. However, I find this trade-off personally worth it for what I’m trying to achieve, and as we’ll see in a bit, I was able to hyper-optimise this game in other ways to avoid lag from the extra calculations required.
+
+## A deeper dive into the custom engine
+
+Beyond collision handling, I needed a completely custom physics engine to handle ball movement. The physics integrates tightly with the CCD system (which I don't love, but it works) to ensure each physics step accurately detects and responds to triangle collisions.
+
+Let me break down how the terrain system actually works, since it's the foundation everything else sits on.
+
+In Golfquest, terrain is generated and rendered in chunks, similar to Minecraft. The world starts with a procedural heightmap generated using Perlin noise with a configurable seed - essentially a function that says "at this X,Z position, the ground should be this high”, smoothed in the right way to create round hills and valleys. Each 12x12 stud grid cell is then subdivided into two triangles using these height values, creating the collision mesh.
+
+The physics engine uses continuous collision detection as mentioned - sweeping the ball's trajectory against these triangles and using barycentric coordinates to calculate exact intersection points and surface heights. Surface normals (for slopes and physics response) are calculated from the triangle geometry.
+
+The visual and collision layers are completely decoupled. Collision triangles are generated immediately from the heightmap data, while visual meshes can render asynchronously (all client-side) without blocking physics. This separation is critical - the ball can bounce into terrain that hasn't finished rendering yet, because collision only depends on the procedural heightmap function, *not the visual geometry*.
+
+Each physics step checks the ball's projected position against surrounding triangles (current cell + 8 neighbors) to handle edge cases at cell boundaries, ensuring the ball stays above ground with accurate gravity.
+
+For custom player island meshes, the logic is slightly different due to harsher conditions (but also increased performance budget). For greater accuracy, collision detection uses a multi-point sampling approach: instead of only checking if the ball's center point intersects a triangle, I sample 9 points distributed across the ball's surface (center, 4 cardinal points at the radius, and 4 diagonal points).
+This catches edge cases where the ball's sphere would clip through a triangle edge even though its center point isn't directly above it.
+
+The entire system runs at a fixed 60Hz timestep with swept sphere-triangle intersection tests, ensuring high-speed shots never tunnel through geometry regardless of framerate.
+
+All physics simulation runs client-side for responsiveness. Each client simulates the ball's trajectory using the same deterministic physics and heightmap seed, then the server periodically reconciles positions to prevent cheating and handle any divergence from network latency or floating-point drift.
+
+Finally, on the client-side, rendering the visual triangles involves an intense “part recycling” system. I learned that creating Part instances actually costs a little bit per frame and so destroying/re-creating them would be inefficient.
+
+All parts needed are slowly created, invisible, when the game loads. We allocate a limit of N parts per frame to avoid going over our frame budget, and prioritise rendering triangles closest to the current player using the same heightmap data (make visible and re-position). Chunks far away from the player are unloaded and the parts are recycled back into the system.
+
+
+￼
+ 
+This all happens on the fly, all client-side, within a few milliseconds!
+
+
+## The underlying architecture of Golfquest, and how I optimised it
+
+Everything I’ve already mentioned is very exciting, considering I believe this type of game on ROBLOX is a one-of-a-kind. The rest of what I want to talk about, is basically the “backend” of Golfquest, such as the frameworks and libraries I’m using, and how multiplayer is handled.
+
+The entire repository is on a private GitHub, complete with CI/CD (allows me to deploy directly to ROBLOX after building). I’ve used Rojo for project management, making use of features like multiple places to split the gameplay for performance.
+
+Developed over months, I originally leveraged Matter ECS for all game systems. 
+ECS (Entity Component System) is an architectural pattern where you declaratively define systems that run each frame, operating on entities with specific components. The systems dictate how everything interacts.
+
+It's a different approach from the typical imperative style, where you explicitly code actions in a specific order at different points in the game loop.
+
+ECS promises better performance through cache-friendly data layouts and can scale more elegantly than traditional OOP hierarchies. While imperative code might be more immediately readable, ECS shines when you need flexible, composable systems that can handle complex interactions efficiently. It’s a data-driven & more functional approach, which took me time to get used to, but I can’t imagine developing a game without this framework now.
+
+I later moved to JECS, Just (a stupidly fast) Entity Component System. It’s no lie, the performance gains I got moving from Matter to JECS with a lot of the same logic were over 10 fold. Where Matter might take several milliseconds to render a frame with lots of components, JECS handles this as a breeze.
+
+This is just *one* of the optimisations I needed to help me get below my 16ms per frame target (60fps).
+￼
+JECS and Matter aren’t directly interchangeable, and there are some slightly different concepts between them.
+After a few days of rewriting systems, I was able to get to a point where the game was running *performantly*, and finally giving me the results I wanted; a golf ball that doesn’t fall through the ground!
+
+As as aside, there’s definitely things you *lose* switching from traditional patterns to ECS (especially in ROBLOX development), for example, JECS is single-threaded, and ROBLOX does support multi-threaded Luau, which I try to leverage where possible outside of the systems. But for most cases, it’s super performant and scales well.
+
+### Multiplayer, major savings
+
+Here’s the interesting part. I was always considering how multiplayer would work throughout development, but it was not fully optimised right up until a few months ago.
+
+Previously, the game was sending packets for *each player*, *each frame* they were moving, to every other player. It’s an extreme amount of bandwidth for a large lobby, and I wanted upwards of 40 players in one “room”. 
+
+I did lots of research around how to optimise the amount of data being sent through, and had an epiphany - if we had deterministic collisions & visuals based on a set seed, we could also make the *ball movement deterministic along the collision mesh*! Once physics is deterministic, multiplayer stops being about bandwidth and state management, and becomes a synchronisation problem, somewhat easier to reason about.
+
+This is very similar to how “awesome” games, like Rocket League, can be so highly real-time and competitive, but barely break a sweat in terms of representing the game properly. They’re also making use of deterministic, high-frequency physics, on top of sophisticated rollback & anti-lag measures.
+
+For more on this amazing topic, check out **”It IS Rocket Science! The Physics of Rocket League Detailed”**, a great talk from GDC. https://www.youtube.com/watch?v=ueEmiDM94IE 
+
+This essentially means, we can boil the problem for data sending down to just *one packet*; we just need to know where each player currently is at the time of the shot, simulate the physics of the exact power & direction, and reconcile with the authoritative server to stop any weird mis-positioning.
+
+For what it’s worth, once you have deterministic physics, you can largely set and forget, without worrying about cheaters *too much*. Provided you define character movement via “intents” with options, such as notifying other clients when you’re interacting with controls, you’ve locked down the attack surface area for people sending malicious packets. (eg. people can’t just teleport where they’d like in my game or Rocket League, they need to send valid intent data, like accelerating or shooting the ball).
+
+Of course, this doesn’t *eliminate* cheaters, so mileage varies, and there’s a lot more protection to add on top of this.
+
+As for the libraries I’m using for packet handling, I’m leveraging “YetAnotherNet” hooked into JECS’ render phase. YetAnotherNet encapsulates ROBLOX’s “RemoteEvent” with routes and the ability to query within the system lifecycle.
+> RemoteEvent facilitates asynchronous, one-way communication across the client-server boundary.
+> This communication can be directed from one client to the server, from the server to a specific client, or from the server to all clients.
+
+### UI & other bits
+
+I never thought I’d see the day where I’d be using *React* inside *Lua*, but, here we are I guess.
+
+[*Roact* (or *react-luau*)](https://github.com/Roblox/react-luau) is a Lua framework that re-implements a lot of core ideas from React, allowing for components & children to be built declaratively, then rendered when needed. It works with ROBLOX’s instances, and introduces concepts like “bindings”, signals-based state that doesn't re-render (these are great for animations).
+
+Honestly, it does resemble React so much that I enjoyed using it, though it gets pretty unwieldy for larger components since there isn’t a clean syntax like JSX for this. There have been some crazy projects to make this easier, but for now, long UI files & breaking out components are the least of my worries.
+
+Amazingly, there’s even rudimentary “Storybook” support, you can download the “UI Labs” (https://ui-labs.luau.page/) plugin and actually preview your UI components with support for a bunch of different frameworks, including Roact.
+
+## What developing on ROBLOX taught me, why I won’t do it again
+
+It was fun developing a *real* game on ROBLOX, but goodness gracious… can’t help but feel there was lots of time wasted.
+
+I don't think I'll see myself developing on the platform again. Here are some points from me around what I learned and what's probably stopping a fair amount of devs on ROBLOX:
+
+1. Some dreams *are* too ambitious on ROBLOX, unfortunately.
+2. ROBLOX has their priorities all over the place, not in improving core player experience (like collision detection or improved physics). I do appreciate their efforts in improving developer experience around stuff like UI handling, but the actual *player* experience needs improving as well.
+3. The eco-system is pretty scattered unfortunately, there isn’t a “central hub” for great ROBLOX projects. The dev forum helps but it’s hard to find what you need. Package managers like Wally are also quite basic (it’s great, but doesn’t always have what you need published).
+4. ROBLOX seems to encourage more “basic” games to be made, rather than open vast worlds with larger assets. The attitude they have seems to show they’re open for bigger projects but *only* using their pre-defined systems like `TerrainService` which, didn’t fit my needs. Definitely more intended for quick spin-up games :)
+5. Working in Luau.. just, not the best. It’s fast, but I’d prefer a more robust language with better handling around types down the line.
+ It’s probably just simpler to work outside of ROBLOX, with an established engine like Unity or Godot. Even though those seem daunting, I had to touch a lot of concepts that I likely would’ve anyways had I just made the game in a different engine.
+
+## What’s next for Golfquest?
+
+Time to make it fun!
+
+I’ve spent a lot of blood, sweat, and tears to get Golfquest in a fairly stable state, working consistently without any major issues. Now, in 2026, months away from launch, I’m going to focus hard on making the core game loop and features a lot more enjoyable. Getting the UI more up to date, and giving the players a proper goal.
+
+The main aspects of Golfquest will include adventuring in the open world, playing with mates on casual courses, and building out your personal island - all of which I’ll be working on closely in the next few months.
+
+At least we’re not going back to the drawing board again, hah. We’ve finally got a golf ball + terrain that works, now just gotta, make the *rest of the game*!
+
+If you’re enjoying the development of Golfquest and want to see more dev-logs + updates, check out my Discord, and I’ll be releasing a proper **BETA** coming shortly! I’ve been a bit on and off with development, but I’m excited to finish this as I *really* want to get away from ROBLOX.
+
+Someone save me if I need to make custom logic like this ever again.
+
+
